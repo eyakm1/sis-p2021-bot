@@ -1,0 +1,7 @@
+CREATE USER IF NOT EXISTS 'myuser' IDENTIFIED BY 'db';
+CREATE DATABASE `mydb` CHARACTER SET utf8;
+
+GRANT USAGE ON *.* TO 'myuser'@localhost IDENTIFIED BY 'mydb';
+GRANT ALL PRIVILEGES ON `mydb`.* TO 'myuser'@localhost IDENTIFIED BY 'db';
+
+FLUSH PRIVILEGES;

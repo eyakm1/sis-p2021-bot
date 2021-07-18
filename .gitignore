@@ -3,4 +3,4 @@
 dist/
 .cache/
 .env/
-**/migrations/
+venv/

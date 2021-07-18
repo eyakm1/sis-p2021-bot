@@ -1,0 +1,25 @@
+cache:
+  paths:
+    - venv/
+
+variables:
+  PIP_INDEX_URL: "http://p.lksh.ru/mirror/pypi/simple"
+  PIP_TRUSTED_HOST: "p.lksh.ru"
+
+before_script:
+  - if [ ! -d venv ]; then python -m venv venv; fi
+  - source venv/bin/activate
+  - pip install -r bot/requirements.txt
+  - pip install -r ejudge_scraper/requirements.txt
+  - pip install -r tlm/requirements.txt
+  - pip install -r requirements-ci.txt
+
+lint:
+  script:
+    - EXCLUDED_DIRECTORIES="-path ./venv -prune -o -path ./tlm/db/migrations -prune -o"
+    - LINTED_FILES=$(find . $EXCLUDED_DIRECTORIES -name '*.py' -print)
+    - pylint $LINTED_FILES
+
+test:
+  script:
+    - pytest

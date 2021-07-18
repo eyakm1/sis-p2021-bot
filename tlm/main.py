@@ -5,8 +5,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
 django.setup()
 
-# Import your models for use in your script
-
+# pylint: disable=wrong-import-position,wildcard-import
 from db.models import *
 
 # Seed a few users in the database

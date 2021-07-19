@@ -137,9 +137,8 @@ paths:
       requestBody:
         content:
           application/json:
-          schema:
-            $ref: "#/components/schemas/SubmissionStatus"
-        description:
+            schema:
+              $ref: "#/components/schemas/SubmissionStatus"
         required: true
       responses:
         '200':

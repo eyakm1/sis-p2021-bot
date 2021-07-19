@@ -10,7 +10,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 DATABASES = {
     'default': {
-        # pip install mysqlclient
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'mydb',
         'USER': 'myuser',
@@ -23,4 +22,4 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS = ('db',)
+INSTALLED_APPS = ('tlm',)

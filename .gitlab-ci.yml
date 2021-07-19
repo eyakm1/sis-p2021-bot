@@ -1,10 +1,15 @@
-cache:
+cache: &global_cache
   paths:
     - venv/
 
+stages:
+  - build
+  - lint
+  - test
+  - deploy
+
 variables:
   PIP_INDEX_URL: "https://mirror.p.lksh.ru/pypi/simple"
-
 before_script:
   - if [ ! -d venv ]; then python -m venv venv; fi
   - source venv/bin/activate
@@ -13,12 +18,70 @@ before_script:
   - pip install -r tlm/requirements.txt
   - pip install -r requirements-ci.txt
 
-lint:
+Build TLM schema:
+  stage: build
   script:
-    - EXCLUDED_DIRECTORIES="-path ./venv -prune -o -path ./tlm/db/migrations -prune -o"
-    - LINTED_FILES=$(find . $EXCLUDED_DIRECTORIES -name '*.py' -print)
-    - pylint $LINTED_FILES
+    - python ci/build_schema.py tlm/openapi.yaml ci/openapi.json
+  artifacts:
+    paths:
+      - ci/openapi.json
 
-test:
+.lint_python: &lint_python
+  - |
+    for item in ${EXCLUDED_DIRECTORIES[*]}; do
+      EXCLUDED_DIRECTORIES_ARGS="$EXCLUDED_DIRECTORIES_ARGS -path $item -prune -o"
+    done
+  - LINTED_FILES=$(find . $EXCLUDED_DIRECTORIES_ARGS -name '*.py' -print)
+  - pylint --rcfile=$CI_PROJECT_DIR/.pylintrc $LINTED_FILES
+
+Lint Bot:
+  stage: lint
+  script:
+    - cd bot
+    - *lint_python
+Lint TLM:
+  stage: lint
+  script:
+    - cd tlm
+    - EXCLUDED_DIRECTORIES=(./db/migrations)
+    - *lint_python
+Lint Ejudge scraper:
+  stage: lint
+  script:
+    - cd ejudge_scraper
+    - *lint_python
+
+Lint TLM schema:
+  dependencies:
+    - Build TLM schema
+  stage: lint
+  script:
+    - cd ci
+    - spectral lint openapi.json
+
+Test Python:
+  stage: test
   script:
     - pytest
+
+.deploy_setup:
+  stage: deploy
+  only:
+    - main
+  before_script:
+    - mkdir -p ~/.ssh
+    - eval $(ssh-agent -s)
+    - 'echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config'
+    - ssh-add <(echo $SSH_PRIVATE_KEY | base64 -d)
+
+.deploy_staging:
+  extends: .deploy_setup
+  environment:
+    name: staging
+
+Deploy TLM schema:
+  dependencies:
+    - Build TLM schema
+  extends: .deploy_staging
+  script:
+    - scp ci/openapi.json $DEPLOY_USER@$SSH_SCHEMA_HOST:$SCHEMA_DEPLOY_PATH

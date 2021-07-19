@@ -1,0 +1,169 @@
+openapi: 3.0.0
+info:
+  title: "TLM API"
+  description: "API for Task Lifecycle Manager"
+  version: 0.1.0
+components:
+  schemas:
+    SubmissionStatus:
+      type: "string"
+      enum:
+        - "unassigned"
+        - "assigned"
+        - "closed"
+    DatabaseId:
+      type: "integer"
+      description: "Database id"
+    TelegramMessage:
+      properties:
+        chat_id:
+          type: "integer"
+        message_id:
+          type: "integer"
+    Submission:
+      properties:
+        id:
+          $ref: "#/components/schemas/DatabaseId"
+        cid:
+          type: "integer"
+          description: "Contest id"
+        rid:
+          type: "integer"
+          description: "Run id"
+        login:
+          type: "integer"
+          description: "Student login"
+        problem:
+          type: "string"
+          description: "Problem name"
+        assignee:
+          type: "integer"
+          description: "Telegram chat id with assigned reviewer"
+        status:
+          $ref: "#/components/schemas/SubmissionStatus"
+        tg_msg:
+          $ref: "#/components/schemas/TelegramMessage"
+paths:
+  /submissions:
+    post:
+      summary: "Add scraped submissions that need to be processed to the queue"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+                properties:
+                  cid:
+                    type: "integer"
+                    description: "Contest id"
+                  rid:
+                    type: "integer"
+                    description: "Run id"
+                  login:
+                    type: "string"
+                    description: "Student login"
+                  problem:
+                    type: "string"
+                    description: "Problem name"
+      responses:
+        '200':
+          description: "OK"
+        '400':
+          description: "Login or problem name too long"
+  /waiting:
+    get:
+      summary: "Get waiting for sending submissions"
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Submission"
+  /to_delete:
+    get:
+      summary: "Get submissions that need to be reactualized in Telegram chat"
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      $ref: "#/components/schemas/DatabaseId"
+                    tg_msg:
+                      $ref: "#/components/schemas/TelegramMessage"
+  /submissions/{submission_id}/confirm:
+    post:
+      summary: "Confirm that the message in Telegram was actualized against database"
+      parameters:
+        - in: path
+          name: submission_id
+          schema:
+            $ref: "#/components/schemas/DatabaseId"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                tg_msg:
+                  $ref: "#/components/schemas/TelegramMessage"
+        required: false
+      responses:
+        '200':
+          description: "OK"
+        '404':
+          description: "Submission with given ID not found"
+  /submissions/{submission_id}/status:
+    put:
+      summary: "Update submission status"
+      parameters:
+        - in: path
+          name: submission_id
+          schema:
+            $ref: "#/components/schemas/DatabaseId"
+          required: true
+      requestBody:
+        content:
+          application/json:
+          schema:
+            $ref: "#/components/schemas/SubmissionStatus"
+        description:
+        required: true
+      responses:
+        '200':
+          description: "OK"
+        '404':
+          description: "Submission with given ID not found"
+  /submissions/{submission_id}/assignee:
+    put:
+      summary: "Update submission status"
+      parameters:
+        - in: path
+          name: submission_id
+          schema:
+            $ref: "#/components/schemas/DatabaseId"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: integer
+              description: "Telegram chat id with assigned reviewer"
+        required: true
+      responses:
+        '200':
+          description: "OK"
+        '404':
+          description: "Submission with given ID not found"

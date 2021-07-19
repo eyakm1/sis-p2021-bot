@@ -1,16 +1,7 @@
-# Django specific settings
-import os
-import django
+import orm_setup as _
+# this is how you should import ypur models
+from tlm.models import User
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'settings')
-django.setup()
-
-# pylint: disable=wrong-import-position,wildcard-import
-from db.models import *
-
-# Seed a few users in the database
 User.objects.create(name='Dan')
-User.objects.create(name='Robert')
-
-for u in User.objects.all():
-    print(f'ID: {u.id} \tUsername: {u.name}')
+for user in User.objects.all():
+    print(f"ID: {user.pk} Name:{user.name}")

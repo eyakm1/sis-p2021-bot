@@ -20,14 +20,15 @@ class Bot:
                 item_cnt = int(args[-1])
 
             self.bot.send_message(message.chat.id,
-                                  "variants:",
+                                  'variants:',
                                   reply_markup=self.gen_markup(item_cnt))
 
         @self.bot.message_handler()
         def just_text(message):
-            self.bot.reply_to(message, f'не понимаю Вас')
+            self.bot.reply_to(message, 'не понимаю Вас')
 
-    def gen_markup(self, n):
+    @staticmethod
+    def gen_markup(n):
         markup = InlineKeyboardMarkup()
         for i in range(n):
             markup.add(InlineKeyboardButton(i, callback_data=str(i)))

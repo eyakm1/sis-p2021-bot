@@ -86,3 +86,9 @@ Deploy TLM schema:
   extends: .deploy_staging
   script:
     - scp ci/openapi.json $DEPLOY_USER@$SSH_SCHEMA_HOST:$SCHEMA_DEPLOY_PATH
+
+Deploy stub:
+  extends: .deploy_staging
+  script:
+    - cd ci
+    - ansible-playbook -i $SSH_HOST, deploy-stub.yml

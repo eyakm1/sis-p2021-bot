@@ -79,8 +79,6 @@ Test Python:
 
 .deploy_setup:
   stage: deploy
-  only:
-    - main
   before_script:
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
@@ -91,6 +89,13 @@ Test Python:
   extends: .deploy_setup
   environment:
     name: staging
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: always
+    - if: $CI_COMMIT_BRANCH == "ci-cd"
+      when: manual
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_COMMIT_BRANCH != "ci-cd"
+      when: never
 
 Deploy TLM schema:
   dependencies:

@@ -22,4 +22,4 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS = ('tlm',)
+INSTALLED_APPS = ('tlm', 'common_models')

@@ -1,6 +1,7 @@
-import config
 import telebot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
+
+import config
 
 
 class Bot:

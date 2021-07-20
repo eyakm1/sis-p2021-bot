@@ -41,8 +41,6 @@ components:
           description: "Telegram chat id with assigned reviewer"
         status:
           $ref: "#/components/schemas/SubmissionStatus"
-        tg_msg:
-          $ref: "#/components/schemas/TelegramMessage"
 paths:
   /submissions:
     post:

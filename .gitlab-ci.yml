@@ -75,7 +75,11 @@ Lint TLM schema:
 Test Python:
   stage: test
   script:
-    - pytest
+    - pytest --junitxml=report.xml
+  artifacts:
+    when: always
+    reports:
+      junit: report.xml
 
 .deploy_setup:
   stage: deploy

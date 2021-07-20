@@ -1,23 +1,35 @@
 cache: &global_cache
+  key: $CI_COMMIT_REF_SLUG
   paths:
     - venv/
+  policy: pull
 
 stages:
+  - install
   - build
   - lint
   - test
   - deploy
 
-variables:
-  PIP_INDEX_URL: "https://mirror.p.lksh.ru/pypi/simple"
-  PIP_INSTALL_OPTIONS: "--jobs=16"
 before_script:
-  - if [ ! -d venv ]; then python -m venv venv; fi
   - source venv/bin/activate
-  - pip install -r bot/requirements.txt
-  - pip install -r ejudge_scraper/requirements.txt
-  - pip install -r tlm/requirements.txt
-  - pip install -r requirements-ci.txt
+
+Install dependencies:
+  stage: install
+  cache:
+    <<: *global_cache
+    policy: pull-push
+  variables:
+    PIP_INDEX_URL: "https://mirror.p.lksh.ru/pypi/simple"
+    PIP_INSTALL_OPTIONS: "--jobs=16"
+  before_script:
+    - if [ ! -d venv ]; then python -m venv venv; fi
+    - source venv/bin/activate
+  script:
+    - pip install -r bot/requirements.txt
+    - pip install -r ejudge_scraper/requirements.txt
+    - pip install -r tlm/requirements.txt
+    - pip install -r requirements-ci.txt
 
 Build TLM schema:
   stage: build

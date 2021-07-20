@@ -41,8 +41,6 @@ components:
           description: "Telegram chat id with assigned reviewer"
         status:
           $ref: "#/components/schemas/SubmissionStatus"
-        tg_msg:
-          $ref: "#/components/schemas/TelegramMessage"
 paths:
   /submissions:
     post:
@@ -102,9 +100,9 @@ paths:
                       $ref: "#/components/schemas/DatabaseId"
                     tg_msg:
                       $ref: "#/components/schemas/TelegramMessage"
-  /submissions/{submission_id}/confirm:
-    post:
-      summary: "Confirm that the message in Telegram was actualized against database"
+  /submissions/{submission_id}/confirm/send:
+    put:
+      summary: "Confirm that the message in Telegram with given submission was sent"
       parameters:
         - in: path
           name: submission_id
@@ -119,7 +117,21 @@ paths:
               properties:
                 tg_msg:
                   $ref: "#/components/schemas/TelegramMessage"
-        required: false
+        required: true
+      responses:
+        '200':
+          description: "OK"
+        '404':
+          description: "Submission with given ID not found"
+  /submissions/{submission_id}/confirm/delete:
+    put:
+      summary: "Confirm that the message in Telegram with given submission was deleted"
+      parameters:
+        - in: path
+          name: submission_id
+          schema:
+            $ref: "#/components/schemas/DatabaseId"
+          required: true
       responses:
         '200':
           description: "OK"

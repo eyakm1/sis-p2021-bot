@@ -1,6 +1,7 @@
 cache: &global_cache
   key: $CI_COMMIT_REF_SLUG
   paths:
+    - .cache/pip
     - venv/
   policy: pull
 
@@ -21,7 +22,7 @@ Install dependencies:
     policy: pull-push
   variables:
     PIP_INDEX_URL: "https://mirror.p.lksh.ru/pypi/simple"
-    PIP_INSTALL_OPTIONS: "--jobs=16"
+    PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   before_script:
     - if [ ! -d venv ]; then python -m venv venv; fi
     - source venv/bin/activate
@@ -83,6 +84,7 @@ Test Python:
 
 .deploy_setup:
   stage: deploy
+  cache: {}
   before_script:
     - mkdir -p ~/.ssh
     - eval $(ssh-agent -s)
@@ -95,7 +97,7 @@ Test Python:
     name: staging
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-      when: always
+      when: on_success
     - if: $CI_COMMIT_BRANCH == "ci-cd"
       when: manual
     - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_COMMIT_BRANCH != "ci-cd"

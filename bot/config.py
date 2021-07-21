@@ -1,2 +1,6 @@
-# pylint: disable=invalid-name
-bot_token = '1947232584:AAFHx2rI8zlHxz89Av8Lc9eokG7Y49_Etpg'
+BOT_TOKEN = "BOT TOKEN"
+# Token of @LkshEjudge_bot
+API_URL = "http://127.0.0.1:5000"
+POLL_INTERVAL_SECONDS = 5
+LOG_FILE_UPDATE_INTERVAL_HOURS = 1
+LOGS_BACKUP_FILE_COUNT = 24 * 7

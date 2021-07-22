@@ -35,10 +35,10 @@ Install dependencies:
 Build TLM schema:
   stage: build
   script:
-    - python ci/build_schema.py tlm/openapi.yaml ci/openapi.json
+    - python ci/schema/build_schema.py tlm/openapi.yaml ci/schema/openapi.json
   artifacts:
     paths:
-      - ci/openapi.json
+      - ci/schema/openapi.json
 
 .lint_python: &lint_python
   - |
@@ -70,7 +70,7 @@ Lint TLM schema:
     - Build TLM schema
   stage: lint
   script:
-    - cd ci
+    - cd ci/schema
     - spectral lint openapi.json
 
 Test Python:
@@ -108,7 +108,7 @@ Deploy TLM schema:
     - Build TLM schema
   extends: .deploy_staging
   script:
-    - scp ci/openapi.json $DEPLOY_USER@$SSH_SCHEMA_HOST:$SCHEMA_DEPLOY_PATH
+    - scp ci/schema/openapi.json deployer@$SSH_SCHEMA_HOST:$SCHEMA_DEPLOY_PATH
 
 Deploy stub:
   extends: .deploy_staging

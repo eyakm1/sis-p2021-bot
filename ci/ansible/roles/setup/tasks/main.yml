@@ -1,0 +1,22 @@
+- name: Install dependencies
+  apt: name={{ item }} state=present
+  loop:
+    - python3-venv
+    - python3-pip
+    - nginx
+
+- name: Create directories
+  file:
+    path: /opt/stub
+    owner: tlm
+    group: reviewbot
+    state: directory
+
+- name: Create group
+  group: name=reviewbot
+- name: Create users
+  user: name={{ item }} group=reviewbot
+  loop:
+    - tlm
+    - scraper
+    - bot

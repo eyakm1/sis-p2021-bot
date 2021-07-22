@@ -27,11 +27,11 @@ from tlm.requests_handler import (
 )
 
 urlpatterns = [
-    path('submissions/', add_submissions),
-    path('submissions/<int:submission_id>/confirm/send/', confirm_send),
-    path('submissions/<int:submission_id>/confirm/delete/', confirm_delete),
-    path('waiting/', waiting),
-    path('to_delete/', delete),
-    path('submissions/<int:submission_id>/status/', update_status),
-    path('submissions/<int:submission_id>/assignee/', update_assignee)
+    path('submissions', add_submissions),
+    path('submissions/<int:submission_id>/confirm/send', confirm_send),
+    path('submissions/<int:submission_id>/confirm/delete', confirm_delete),
+    path('waiting', waiting),
+    path('to_delete', delete),
+    path('submissions/<int:submission_id>/status', update_status),
+    path('submissions/<int:submission_id>/assignee', update_assignee)
 ]

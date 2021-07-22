@@ -27,7 +27,7 @@ def add_submissions(request: HttpRequest) -> HttpResponse:
     for submission in body:
         try:
             request_body.append({k: typ(submission.get(k))
-                                 for k, typ in submission_fields.values()})
+                                 for k, typ in submission_fields.items()})
         except ValueError:
             return HttpResponse(status=400)
 

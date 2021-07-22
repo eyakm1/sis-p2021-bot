@@ -12,7 +12,8 @@ def post_submissions(request_body: JsonList) -> None:
     for submission_data in request_body:
         submission, _ = Submission.objects.get_or_create(cid=submission_data['cid'],
                                                          login=submission_data['login'],
-                                                         problem=submission_data['problem'])
+                                                         problem=submission_data['problem'],
+                                                         defaults={'rid': submission_data['rid']})
 
         submission.rid = submission_data['rid']
         if submission.assignee is None:

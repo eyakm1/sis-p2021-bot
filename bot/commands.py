@@ -1,4 +1,4 @@
-from common_models.models import Contest
+from common.models.models import Contest
 from bot_class import bot
 from messaging import send
 

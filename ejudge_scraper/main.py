@@ -2,7 +2,7 @@
 # this import should be first
 import orm_setup as _
 
-from common_models.models import Contest
+from common.models.models import Contest
 from ej_parser import ContestParser
 import json
 import requests

@@ -5,4 +5,5 @@ dist/
 .env/
 venv/
 ci/openapi.json
+static/
 bot/logs/

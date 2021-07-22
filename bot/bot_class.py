@@ -48,8 +48,8 @@ class Bot(telebot.TeleBot):
         if not to_delete_list:
             return
         for to_delete_msg in to_delete_list:
-            was_deleted = messaging.delete_message(self, to_delete_msg["tg_msg"]["message_id"],
-                                                   to_delete_msg["tg_msg"]["chat_id"])
+            was_deleted = messaging.delete_message(self, to_delete_msg["tg_msg"]["chat_id"],
+                                                   to_delete_msg["tg_msg"]["message_id"])
             if was_deleted:
                 self.confirm_delete(to_delete_msg["id"])
                 bot_class_logger.debug("Message %d was "
@@ -77,7 +77,7 @@ class Bot(telebot.TeleBot):
             return bot_instance \
                        .api_request(requests.put,
                                     f"{config.API_URL}/submissions/{submission_id}/assignee",
-                                    data=str(assignee),
+                                    data=assignee,
                                     success_msg=f"Updated submission {submission_id} "
                                                 f"assignee {assignee}",
                                     error_msg=f"Updating submission {submission_id} assignee "
@@ -131,11 +131,11 @@ class Bot(telebot.TeleBot):
         return chat_id, message_id
 
     @staticmethod
-    def api_request(request_method, url: str, data: [dict, str] = None,
+    def api_request(request_method, url: str, data: [dict, str, int] = None,
                     success_msg: str = None,
                     error_msg: str = None):
         try:
-            result = request_method(url, data=data)
+            result = request_method(url, json=data)
             if result.status_code == 200:
                 if success_msg:
                     bot_class_logger.debug(success_msg)

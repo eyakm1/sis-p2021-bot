@@ -56,7 +56,7 @@ def send_assigned_by_submission_id(bot, message: str, chat_id: int, submission_i
     return send(bot, chat_id, message, markup)
 
 
-def delete_message(bot, message_id: int, chat_id: int) -> bool:
+def delete_message(bot, chat_id: int, message_id: int) -> bool:
     try:
         notification_logger.debug("Deleting message with id %d from chat %d",
                                   message_id, chat_id)

@@ -1,3 +1,4 @@
 pytelegrambotapi
 django
 mysqlclient
+attrs

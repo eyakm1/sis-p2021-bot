@@ -1,22 +1,23 @@
 import threading
 from time import sleep
+
 import orm_setup as _
-from bot_class import bot
 # pylint: disable=unused-import
-import callback
+import bot.callback
 # pylint: disable=unused-import
-import commands
-import config
+import bot.commands
+import bot.config as config
+from bot.bot_class import bot_instance
 
 
 def bot_polling():
-    bot.infinity_polling()
+    bot_instance.infinity_polling()
 
 
 def process_updates():
     while True:
-        bot.process_waiting()
-        bot.delete_messages()
+        bot_instance.process_waiting()
+        bot_instance.delete_messages()
         sleep(config.POLL_INTERVAL_SECONDS)
 
 

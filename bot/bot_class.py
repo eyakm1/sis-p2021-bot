@@ -1,12 +1,14 @@
 import json
 from typing import Optional
+
 import requests
 import telebot
+
 from common.models.models import Contest
-import config
-from logger import get_logger
-import messaging
-from submission import Submission
+import bot.config as config
+import bot.messaging as messaging
+from bot.logger import get_logger
+from bot.submission import Submission
 
 bot_class_logger = get_logger("bot_class")
 
@@ -62,22 +64,24 @@ class Bot(telebot.TeleBot):
 
     @staticmethod
     def change_status(submission_id: id, status: str, assignee: int) -> bool:
-        if not bot.api_request(requests.put, f"{config.API_URL}/submissions/{submission_id}/status",
-                               data=status,
-                               success_msg=f"Status of submission {submission_id} "
-                                           f"changed to {status}",
-                               error_msg=f"Updating submission {submission_id} status to "
-                                         f"{status} failed. Error: %s"):
+        if not bot_instance \
+                .api_request(requests.put,
+                             f"{config.API_URL}/submissions/{submission_id}/status",
+                             data=status,
+                             success_msg=f"Status of submission {submission_id} "
+                                         f"changed to {status}",
+                             error_msg=f"Updating submission {submission_id} status to "
+                                       f"{status} failed. Error: %s"):
             return False
         if status == "assigned":
-            return bot.api_request(requests.put,
-                                   f"{config.API_URL}/submissions/{submission_id}/assignee",
-                                   data=str(assignee),
-                                   success_msg=f"Updated submission {submission_id} "
-                                               f"assignee {assignee}",
-                                   error_msg=f"Updating submission {submission_id} assignee "
-                                             f"{assignee} failed. Error: %s") \
-                   is not None
+            return bot_instance \
+                       .api_request(requests.put,
+                                    f"{config.API_URL}/submissions/{submission_id}/assignee",
+                                    data=str(assignee),
+                                    success_msg=f"Updated submission {submission_id} "
+                                                f"assignee {assignee}",
+                                    error_msg=f"Updating submission {submission_id} assignee "
+                                              f"{assignee} failed. Error: %s") is not None
         return True
 
     @staticmethod
@@ -88,20 +92,22 @@ class Bot(telebot.TeleBot):
                 "message_id": message_id
             }
         }
-        bot.api_request(requests.post, f"{config.API_URL}/submissions/{submission_id}/confirm/send",
-                        data=data,
-                        success_msg=f"Submission {submission_id} successfully sent to "
-                                    f"{chat_id} and confirmed. msg_id: {message_id}",
-                        error_msg=f"Confirming sending submission {submission_id} to "
-                                  f"{chat_id} failed! Error: %s")
+        bot_instance.api_request(requests.post,
+                                 f"{config.API_URL}/submissions/{submission_id}/confirm/send",
+                                 data=data,
+                                 success_msg=f"Submission {submission_id} successfully sent to "
+                                             f"{chat_id} and confirmed. msg_id: {message_id}",
+                                 error_msg=f"Confirming sending submission {submission_id} to "
+                                           f"{chat_id} failed! Error: %s")
 
     @staticmethod
     def confirm_delete(submission_id: int):
-        bot.api_request(requests.post,
-                        f"{config.API_URL}/submissions/{submission_id}/confirm/delete",
-                        success_msg=f"Submission {submission_id} successfully deleted",
-                        error_msg=f"Confirming deleting submission {submission_id} failed! "
-                                  f"Error: %s")
+        bot_instance \
+            .api_request(requests.post,
+                         f"{config.API_URL}/submissions/{submission_id}/confirm/delete",
+                         success_msg=f"Submission {submission_id} successfully deleted",
+                         error_msg=f"Confirming deleting submission {submission_id} failed! "
+                                   f"Error: %s")
 
     def process_group_submission(self, submission: Submission) -> (Optional[int], Optional[int]):
         contest = Contest.objects.filter(cid=submission.cid).first()
@@ -147,4 +153,4 @@ class Bot(telebot.TeleBot):
             return None
 
 
-bot = Bot(token=config.BOT_TOKEN)
+bot_instance = Bot(token=config.BOT_TOKEN)

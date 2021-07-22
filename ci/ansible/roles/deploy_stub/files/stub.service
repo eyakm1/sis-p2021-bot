@@ -2,12 +2,12 @@
 After=network.target
 
 [Service]
-User={{ lookup('env', 'DEPLOY_USER') }}
-Group={{ lookup('env', 'DEPLOY_USER') }}
+User=tlm
+Group=tlm
 Restart=always
 RestartSec=3
 WorkingDirectory=/opt/stub
-ExecStart=python main.py
+ExecStart=python3 main.py
 
 [Install]
 WantedBy=multi-user.target

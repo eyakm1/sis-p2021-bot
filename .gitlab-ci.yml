@@ -57,7 +57,7 @@ Lint TLM:
   stage: lint
   script:
     - cd tlm
-    - EXCLUDED_DIRECTORIES=(./db/migrations)
+    - EXCLUDED_DIRECTORIES=(./migrations)
     - *lint_python
 Lint Ejudge scraper:
   stage: lint

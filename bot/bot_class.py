@@ -2,7 +2,7 @@ import json
 from typing import Optional
 import requests
 import telebot
-from common_models.models import Contest
+from common.models.models import Contest
 import config
 from logger import get_logger
 import messaging

@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # SECURITY WARNING: Modify this secret key if using in production!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', default='super_secret_key')
@@ -42,6 +42,29 @@ TEMPLATES = [
     },
 ]
 
+LOGGING = {
+    'version': 1,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django.db': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+        },
+    },
+}
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,22 +74,22 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'tlm',
-    'common_models',
+    'common.models',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'urls'
+ROOT_URLCONF = 'common.django_conf.urls'
 
-WSGI_APPLICATION = 'wsgi.application'
+WSGI_APPLICATION = 'common.django_conf.wsgi.application'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/

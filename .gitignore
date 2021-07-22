@@ -6,4 +6,4 @@ dist/
 venv/
 ci/openapi.json
 static/
-bot/logs/
+logs/

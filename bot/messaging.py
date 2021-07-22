@@ -1,8 +1,10 @@
 from typing import Optional
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
 from telebot import apihelper
-from logger import get_logger
-from submission import Submission
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+from bot.logger import get_logger
+from bot.submission import Submission
 
 notification_logger = get_logger("notifications")
 

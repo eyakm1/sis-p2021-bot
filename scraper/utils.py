@@ -1,11 +1,15 @@
 import urllib.parse
-from config import (
+from typing import List, Dict
+
+from bs4 import Tag
+
+from scraper.config import (
     EJUDGE_NEW_JUDGE_URL,
     SUBMISSION_FIELDS_EJUDGE_NAMES,
 )
 
 
-def build_newjudge_url(contest_id: int, query_filter: str, first_rid: int = 0):
+def build_newjudge_url(contest_id: int, query_filter: str, first_rid: int = 0) -> str:
     """
     Build ejudge query URL which will be parsed
     :param contest_id: id of scraping contest
@@ -26,7 +30,7 @@ def build_newjudge_url(contest_id: int, query_filter: str, first_rid: int = 0):
     return url
 
 
-def build_column_field_mapping(header_col):
+def build_column_field_mapping(header_col: List[Tag]) -> Dict[str, int]:
     header_col = [ele.text.strip() for ele in header_col]
     column_field_mapping = dict()
     for column, column_header in enumerate(header_col):

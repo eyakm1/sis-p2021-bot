@@ -1,8 +1,11 @@
-from typing import List
-from bs4 import BeautifulSoup
+import re
+from typing import List, Any, Dict
+
 import requests
-from utils import build_newjudge_url, build_column_field_mapping
-import config
+from bs4 import BeautifulSoup
+
+from scraper import config
+from scraper.utils import build_newjudge_url, build_column_field_mapping
 
 
 class ContestParser:
@@ -14,7 +17,7 @@ class ContestParser:
             "Authorization": config.PROXY_AUTH_TOKEN
         })
 
-    def parse_table(self, content: bytes):
+    def parse_table(self, content: bytes) -> List[Dict[str, Any]]:
         parser = BeautifulSoup(content, 'lxml')
         submissions_table = parser.find('table', attrs={
             'class': 'b1',
@@ -28,8 +31,9 @@ class ContestParser:
             cols = [ele.text.strip() for ele in cols]
 
             cur_submission = dict()
-            # skip last char because ejudge adds hashtag after the Run ID
-            cur_submission['rid'] = int(cols[column_field_mapping['rid']][:-1])
+            # seems like ejudge can add some non-digit symbols at the end of run id
+            cur_submission['rid'] = \
+                int(re.match(r'^\d+', cols[column_field_mapping['rid']]).group())
             cur_submission['login'] = cols[column_field_mapping['login']]
             cur_submission['problem'] = cols[column_field_mapping['problem']]
             cur_submission['cid'] = self.contest_id
@@ -37,7 +41,7 @@ class ContestParser:
             self.last_rid = max(self.last_rid, cur_submission['rid'])
         return all_pr_submissions
 
-    def parse_all_new_pr(self):
+    def parse_all_new_pr(self) -> List[Dict[str, Any]]:
         all_pr_submissions_url = build_newjudge_url(self.contest_id,
                                                     config.EJUDGE_PR_FILTER, self.last_rid + 1)
         ej_response = self._session.get(all_pr_submissions_url)

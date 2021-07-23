@@ -28,7 +28,7 @@ Install dependencies:
     - source venv/bin/activate
   script:
     - pip install -r bot/requirements.txt
-    - pip install -r ejudge_scraper/requirements.txt
+    - pip install -r scraper/requirements.txt
     - pip install -r tlm/requirements.txt
     - pip install -r requirements-ci.txt
 
@@ -62,7 +62,7 @@ Lint TLM:
 Lint Ejudge scraper:
   stage: lint
   script:
-    - cd ejudge_scraper
+    - cd scraper
     - *lint_python
 
 Lint TLM schema:

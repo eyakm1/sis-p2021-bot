@@ -26,6 +26,7 @@ class ContestParser:
         column_field_mapping = build_column_field_mapping(table_headers)
 
         all_pr_submissions = []
+        new_last_rid = self.last_rid
         for row in table_rows:
             cols = row.find_all('td')
             cols = [ele.text.strip() for ele in cols]
@@ -34,11 +35,15 @@ class ContestParser:
             # seems like ejudge can add some non-digit symbols at the end of run id
             cur_submission['rid'] = \
                 int(re.match(r'^\d+', cols[column_field_mapping['rid']]).group())
+            # Ejudge is dumb so it can put some shit in FILTERED query, so we drop it here
+            if cur_submission['rid'] <= self.last_rid:
+                continue
             cur_submission['login'] = cols[column_field_mapping['login']]
             cur_submission['problem'] = cols[column_field_mapping['problem']]
             cur_submission['cid'] = self.contest_id
             all_pr_submissions.append(cur_submission)
-            self.last_rid = max(self.last_rid, cur_submission['rid'])
+            new_last_rid = max(new_last_rid, cur_submission['rid'])
+        self.last_rid = new_last_rid
         return all_pr_submissions
 
     def parse_all_new_pr(self) -> List[Dict[str, Any]]:

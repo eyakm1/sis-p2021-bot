@@ -1,12 +1,12 @@
 import json
-from typing import Optional
+from typing import Any, Tuple, Optional
 
 import requests
 import telebot
 
 from common.models.models import Contest
-import bot.config as config
-import bot.messaging as messaging
+
+from bot import config, messaging
 from bot.logger import get_logger
 from bot.submission import Submission
 
@@ -15,9 +15,9 @@ bot_class_logger = get_logger("bot_class")
 
 class Bot(telebot.TeleBot):
     def process_waiting(self):
-        waiting_list = self.api_request(requests.get, f"{config.API_URL}/waiting",
-                                        error_msg="Cannot get API /waiting. Error: %s")
-        if not waiting_list:
+        done, waiting_list = self.api_request(requests.get, f"{config.API_URL}/waiting",
+                                              error_msg="Cannot get API /waiting. Error: %s")
+        if not done:
             return
         for to_send in waiting_list:
             submission = Submission(
@@ -27,10 +27,10 @@ class Bot(telebot.TeleBot):
                 login=to_send["login"],
                 problem=to_send["problem"]
             )
-            assignee = to_send["assignee"]
             bot_class_logger.info("Processing new submission %d...",
                                   submission.id)
-            if assignee:
+            if to_send['status'] == 'assigned':
+                assignee = to_send["assignee"]
                 chat_id, message_id = self.process_private_submission(submission, assignee)
             else:
                 chat_id, message_id = self.process_group_submission(submission)
@@ -42,10 +42,10 @@ class Bot(telebot.TeleBot):
                                          submission.id)
 
     def delete_messages(self):
-        to_delete_list = self.api_request(requests.get,
-                                          f"{config.API_URL}/to_delete",
-                                          error_msg="Cannot get API /to_delete. Error: %s")
-        if not to_delete_list:
+        done, to_delete_list = self.api_request(requests.get,
+                                                f"{config.API_URL}/to_delete",
+                                                error_msg="Cannot get API /to_delete. Error: %s")
+        if not done:
             return
         for to_delete_msg in to_delete_list:
             was_deleted = messaging.delete_message(self, to_delete_msg["tg_msg"]["chat_id"],
@@ -64,24 +64,26 @@ class Bot(telebot.TeleBot):
 
     @staticmethod
     def change_status(submission_id: id, status: str, assignee: int) -> bool:
-        if not bot_instance \
-                .api_request(requests.put,
-                             f"{config.API_URL}/submissions/{submission_id}/status",
-                             data=status,
-                             success_msg=f"Status of submission {submission_id} "
-                                         f"changed to {status}",
-                             error_msg=f"Updating submission {submission_id} status to "
-                                       f"{status} failed. Error: %s"):
+        done, _ = bot_instance \
+            .api_request(requests.put,
+                         f"{config.API_URL}/submissions/{submission_id}/status",
+                         data=status,
+                         success_msg=f"Status of submission {submission_id} "
+                                     f"changed to {status}",
+                         error_msg=f"Updating submission {submission_id} status to "
+                                   f"{status} failed. Error: %s")
+        if not done:
             return False
         if status == "assigned":
-            return bot_instance \
-                       .api_request(requests.put,
-                                    f"{config.API_URL}/submissions/{submission_id}/assignee",
-                                    data=assignee,
-                                    success_msg=f"Updated submission {submission_id} "
-                                                f"assignee {assignee}",
-                                    error_msg=f"Updating submission {submission_id} assignee "
-                                              f"{assignee} failed. Error: %s") is not None
+            done, _ = bot_instance \
+                .api_request(requests.put,
+                             f"{config.API_URL}/submissions/{submission_id}/assignee",
+                             data=assignee,
+                             success_msg=f"Updated submission {submission_id} "
+                                         f"assignee {assignee}",
+                             error_msg=f"Updating submission {submission_id} assignee "
+                                       f"{assignee} failed. Error: %s")
+            return done
         return True
 
     @staticmethod
@@ -92,7 +94,7 @@ class Bot(telebot.TeleBot):
                 "message_id": message_id
             }
         }
-        bot_instance.api_request(requests.post,
+        bot_instance.api_request(requests.put,
                                  f"{config.API_URL}/submissions/{submission_id}/confirm/send",
                                  data=data,
                                  success_msg=f"Submission {submission_id} successfully sent to "
@@ -103,7 +105,7 @@ class Bot(telebot.TeleBot):
     @staticmethod
     def confirm_delete(submission_id: int):
         bot_instance \
-            .api_request(requests.post,
+            .api_request(requests.put,
                          f"{config.API_URL}/submissions/{submission_id}/confirm/delete",
                          success_msg=f"Submission {submission_id} successfully deleted",
                          error_msg=f"Confirming deleting submission {submission_id} failed! "
@@ -133,24 +135,26 @@ class Bot(telebot.TeleBot):
     @staticmethod
     def api_request(request_method, url: str, data: [dict, str, int] = None,
                     success_msg: str = None,
-                    error_msg: str = None):
+                    error_msg: str = None) -> Tuple[bool, Any]:
         try:
             result = request_method(url, json=data)
             if result.status_code == 200:
                 if success_msg:
                     bot_class_logger.debug(success_msg)
-                return result.json()
+                if result.content:
+                    return True, result.json()
+                return True, None
 
             bot_class_logger.warning(error_msg, "status code:" + str(result.status_code))
-            return None
+            return False, None
         except requests.RequestException as error:
             if error_msg:
                 bot_class_logger.warning(error_msg, str(error))
-            return None
+            return False, None
         except json.decoder.JSONDecodeError as error:
             bot_class_logger.error("Error while parsing API response "
                                    "to json. %s", str(error))
-            return None
+            return False, None
 
 
 bot_instance = Bot(token=config.BOT_TOKEN)

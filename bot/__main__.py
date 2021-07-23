@@ -6,7 +6,7 @@ import orm_setup as _
 import bot.callback
 # pylint: disable=unused-import
 import bot.commands
-import bot.config as config
+from bot import config
 from bot.bot_class import bot_instance
 
 

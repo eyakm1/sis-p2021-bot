@@ -11,15 +11,16 @@ notification_logger = get_logger("notifications")
 
 def generate_notify_markup(callback_data: int) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("\U00002705 Взять", callback_data=f"take {callback_data}"))
+    markup.add(InlineKeyboardButton("\U00002705 Взять", callback_data=f"assigned {callback_data}"))
     return markup
 
 
 def generate_individual_markup(callback_data: int) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
-    markup.add(InlineKeyboardButton("\U000021A9 Вернуть", callback_data=f"return {callback_data}"))
-    markup.add(InlineKeyboardButton("\U0000274C Закрыть", callback_data=f"close {callback_data}"))
+    markup.add(InlineKeyboardButton("\U000021A9 Вернуть",
+                                    callback_data=f"unassigned {callback_data}"))
+    markup.add(InlineKeyboardButton("\U0000274C Закрыть", callback_data=f"closed {callback_data}"))
     return markup
 
 

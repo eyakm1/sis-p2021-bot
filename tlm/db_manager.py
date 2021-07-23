@@ -71,6 +71,8 @@ def confirm_delete(submission: Submission) -> None:
 @submission_op
 def update_status(submission: Submission, status: str) -> None:
     submission.status = status
+    if status == 'unassigned':
+        submission.assignee = None
 
 
 @submission_op

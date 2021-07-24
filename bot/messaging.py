@@ -22,8 +22,8 @@ def generate_individual_markup(callback_data: int) -> InlineKeyboardMarkup:
 
 
 def generate_message(submission: Submission) -> str:
-    return f"#contest_{submission.cid}, #problem_{submission.problem}, " \
-           f"#run_id_{submission.rid}, #user_{submission.login}"
+    return f"#c{submission.cid}, #{submission.problem}, " \
+           f"run id: {submission.rid}, #{submission.login}"
 
 
 def send(bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) -> Optional[int]:

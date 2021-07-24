@@ -1,8 +1,7 @@
+import re
 from typing import Optional
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import apihelper
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-
 from bot.logger import get_logger
 from bot.submission import Submission
 

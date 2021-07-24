@@ -1,3 +1,10 @@
+- name: Create {{ component }} certificate directory
+  file:
+    path: '/etc/certs/{{ component }}'
+    state: directory
+    owner: '{{ component }}'
+    group: reviewbot
+    recurse: yes
 - name: Generate certs for {{ component }}
   command:
     chdir: /etc/certs/{{ component }}

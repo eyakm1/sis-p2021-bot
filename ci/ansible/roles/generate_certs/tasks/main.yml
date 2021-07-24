@@ -1,3 +1,10 @@
+- name: Create rootca directory
+  file:
+    path: /etc/certs/ca
+    owner: root
+    group: root
+    state: directory
+    recurse: yes
 - name: Generate rootca
   command:
     chdir: /etc/certs/ca
@@ -21,11 +28,21 @@
     dest: /etc/hosts
     line: "127.0.0.1 tlm"
     state: present
+- name: Create local ca-certificates directory
+  file:
+    path: /usr/local/share/ca-certificates/extra
+    owner: root
+    group: root
+    state: directory
+    recurse: no
 - name: Copy rootca to ca-certificates
   copy:
     src: /etc/certs/ca/ca.crt
     remote_src: yes
     dest: /usr/local/share/ca-certificates/extra/root.crt
+- name: Update ca-certificates
+  command:
+    update-ca-certificates
 - name: Generate certs
   include_tasks: generate_cert.yml
   loop_control:

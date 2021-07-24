@@ -137,7 +137,7 @@ class Bot(telebot.TeleBot):
                     success_msg: str = None,
                     error_msg: str = None) -> Tuple[bool, Any]:
         try:
-            result = request_method(url, json=data)
+            result = request_method(url, json=data, cert=config.CERT)
             if result.status_code == 200:
                 if success_msg:
                     bot_class_logger.debug(success_msg)

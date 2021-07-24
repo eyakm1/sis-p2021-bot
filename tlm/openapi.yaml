@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: "TLM API"
   description: "API for Task Lifecycle Manager"
-  version: 0.1.0
+  version: 0.2.0
 components:
   schemas:
     SubmissionStatus:
@@ -117,6 +117,9 @@ paths:
               properties:
                 tg_msg:
                   $ref: "#/components/schemas/TelegramMessage"
+                rid:
+                  type: integer
+                  description: "Run id of the sent submission"
         required: true
       responses:
         '200':

@@ -21,6 +21,7 @@ class Submission(models.Model):
 
     status = models.CharField(max_length=20, default='unassigned')
     assignee = models.BigIntegerField(null=True)
+    chat_rid = models.BigIntegerField(null=True)
     chat_id = models.BigIntegerField(null=True)
     message_id = models.BigIntegerField(null=True)
 

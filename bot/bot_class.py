@@ -36,7 +36,7 @@ class Bot(telebot.TeleBot):
                 chat_id, message_id = self.process_group_submission(submission)
 
             if message_id:
-                self.confirm_send(submission.id, chat_id, message_id)
+                self.confirm_send(submission.id, submission.rid, chat_id, message_id)
             else:
                 bot_class_logger.warning("Sending submission %d failed",
                                          submission.id)
@@ -87,8 +87,9 @@ class Bot(telebot.TeleBot):
         return True
 
     @staticmethod
-    def confirm_send(submission_id: int, chat_id: int, message_id: int):
+    def confirm_send(submission_id: int, rid: int, chat_id: int, message_id: int):
         data = {
+            "rid": rid,
             "tg_msg": {
                 "chat_id": chat_id,
                 "message_id": message_id
@@ -97,10 +98,12 @@ class Bot(telebot.TeleBot):
         bot_instance.api_request(requests.put,
                                  f"{config.API_URL}/submissions/{submission_id}/confirm/send",
                                  data=data,
-                                 success_msg=f"Submission {submission_id} successfully sent to "
-                                             f"{chat_id} and confirmed. msg_id: {message_id}",
-                                 error_msg=f"Confirming sending submission {submission_id} to "
-                                           f"{chat_id} failed! Error: %s")
+                                 success_msg=f"Submission {submission_id} (rid: {rid}) "
+                                             f"successfully sent to {chat_id} and confirmed. "
+                                             f"msg_id: {message_id}",
+                                 error_msg=f"Confirming sending submission "
+                                           f"{submission_id} (rid: {rid}) "
+                                           f"to {chat_id} failed! Error: %s")
 
     @staticmethod
     def confirm_delete(submission_id: int):

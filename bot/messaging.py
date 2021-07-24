@@ -1,12 +1,16 @@
+import re
 from typing import Optional
-
 from telebot import apihelper
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
-
 from bot.logger import get_logger
 from bot.submission import Submission
 
 notification_logger = get_logger("notifications")
+
+
+def prepare_for_hashtag(s: str):
+    replaced = re.sub(r'\W', '_', s)  # replace non-alphanumeric symbols with _
+    return re.sub(r'_+', '_', replaced)  # merge consequent underscores
 
 
 def generate_notify_markup(callback_data: int) -> InlineKeyboardMarkup:
@@ -25,8 +29,8 @@ def generate_individual_markup(callback_data: int) -> InlineKeyboardMarkup:
 
 
 def generate_message(submission: Submission) -> str:
-    return f"#contest_{submission.cid}, #problem_{submission.problem}, " \
-           f"#run_id_{submission.rid}, #user_{submission.login}"
+    return f"#c{submission.cid}, #{submission.problem}, " \
+           f"run id: {submission.rid}, #{submission.login}"
 
 
 def send(bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) -> Optional[int]:

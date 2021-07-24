@@ -1,0 +1,8 @@
+- name: Copy nginx config
+  template:
+    src: tlm-api.conf
+    dest: /etc/nginx/sites-enabled/tlm-api
+- name: Restart nginx
+  systemd:
+    name: nginx
+    state: restarted

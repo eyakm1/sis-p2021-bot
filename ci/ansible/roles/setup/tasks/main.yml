@@ -1,3 +1,7 @@
+- name: Get deployment directory
+  set_fact:
+    deploy_dir: "{{ lookup('env', 'DEPLOY_DIR')|default('/opt/reviewbot', boolean=True) }}"
+
 - name: Install dependencies
   apt: name={{ item }} state=present
   loop:
@@ -5,18 +9,28 @@
     - python3-pip
     - nginx
 
-- name: Create directories
-  file:
-    path: /opt/stub
-    owner: tlm
-    group: reviewbot
-    state: directory
-
 - name: Create group
   group: name=reviewbot
 - name: Create users
   user: name={{ item }} group=reviewbot
   loop:
+    - reviewbot
     - tlm
     - scraper
     - bot
+
+- name: Create deploy_dir
+  file:
+    path: '{{ deploy_dir }}'
+    owner: reviewbot
+    group: reviewbot
+    state: directory
+    recurse: yes
+- name: Create logs directory
+  file:
+    path: '{{ deploy_dir }}/logs'
+    owner: reviewbot
+    group: reviewbot
+    state: directory
+    mode: '0770'
+    recurse: yes

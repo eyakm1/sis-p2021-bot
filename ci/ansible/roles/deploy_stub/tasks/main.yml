@@ -1,9 +1,0 @@
-- vars:
-    component_dir: stub
-    component: stub
-  include:
-- name: Restart service
-  systemd:
-    state=restarted
-    name=p-stub
-    daemon_reload=yes

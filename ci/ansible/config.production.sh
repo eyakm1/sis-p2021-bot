@@ -1,0 +1,14 @@
+export BOT_TOKEN=$BOT_TOKEN
+export BOT_POLL_INTERVAL_SECONDS=0.5
+export DB_NAME=reviewbot
+export DB_USER=reviewbot
+export DB_PASSWORD=$DB_PASSWORD
+export API_BASE=https://tlm
+export EJUDGE_NEW_JUDGE_URL=http://ejudge.lksh.ru/ej/new-judge
+export PROXY_AUTH_TOKEN=$PROXY_AUTH_TOKEN
+export SCRAPE_INTERVAL_SECONDS=300
+export SCRAPER_CERTIFICATE_PATH=/etc/certs/scraper/scraper.crt
+export SCRAPER_CERTIFICATE_KEY_PATH=/etc/certs/scraper/scraper.key
+export BOT_CERT_FILE_PATH=/etc/certs/bot/bot.crt
+export BOT_CERT_KEY_FILE_PATH=/etc/certs/bot/bot.key
+export DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY

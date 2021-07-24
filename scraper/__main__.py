@@ -4,6 +4,7 @@ import orm_setup as _
 
 import logging
 import time
+import os
 
 import requests
 
@@ -13,8 +14,20 @@ from scraper.config import (
     CERTIFICATE_KEY_PATH,
     CERTIFICATE_PATH,
     SCRAPE_INTERVAL_SECONDS,
+    LOG_FILE_UPDATE_INTERVAL_HOURS,
+    LOGS_BACKUP_FILE_COUNT, LOGS_DIR, LOGS_FORMAT,
 )
 from scraper.ej_parser import ContestParser
+
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+logging.basicConfig(format=LOGS_FORMAT, level=logging.INFO)
+logger_file_handler = logging.handlers.TimedRotatingFileHandler(
+    os.path.join(LOGS_DIR, 'scraper.log'),
+    encoding="utf-8", when="h", interval=LOG_FILE_UPDATE_INTERVAL_HOURS,
+    backupCount=LOGS_BACKUP_FILE_COUNT)
+logger_file_handler.setFormatter(logging.Formatter(LOGS_FORMAT))
+logging.getLogger().addHandler(logger_file_handler)
 
 
 def main():

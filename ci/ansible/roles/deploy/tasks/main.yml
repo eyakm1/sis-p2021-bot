@@ -49,10 +49,10 @@
   command:
     chdir: '{{ deploy_dir }}'
     cmd: '{{ deploy_dir }}/venv/bin/python manage.py migrate'
-    environment:
-      DB_NAME: '{{ db_name }}'
-      DB_USER: '{{ db_user }}'
-      DB_PASSWORD: '{{ db_password }}'
+  environment:
+    DB_NAME: '{{ db_name }}'
+    DB_USER: '{{ db_user }}'
+    DB_PASSWORD: '{{ db_password }}'
 - name: Start components
   systemd:
     state: started

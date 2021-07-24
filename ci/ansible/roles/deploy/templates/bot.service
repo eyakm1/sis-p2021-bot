@@ -9,6 +9,9 @@ Restart=always
 RestartSec=3
 WorkingDirectory={{ deploy_dir }}
 ExecStart='{{ deploy_dir }}/venv/bin/python' -m bot
+Environment='DB_NAME={{ db_name }}'
+Environment='DB_USER={{ db_user }}'
+Environment='DB_PASSWORD={{ db_password }}'
 Environment='BOT_TOKEN={{ bot_token }}'
 Environment='API_BASE={{ api_base }}'
 Environment='BOT_POLL_INTERVAL_SECONDS={{ bot_poll_interval_seconds }}'

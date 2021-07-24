@@ -15,8 +15,17 @@
     mode: '{{ item[1] }}'
   loop:
     - ['ca.key', '0600']
-    - ['ca.crt', '0640']
-
+    - ['ca.crt', '0644']
+- name: Add tlm to hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "127.0.0.1 tlm"
+    state: present
+- name: Copy rootca to ca-certificates
+  copy:
+    src: /etc/certs/ca/ca.crt
+    remote_src: yes
+    dest: /usr/local/share/ca-certificates/extra/root.crt
 - name: Generate certs
   include_tasks: generate_cert.yml
   loop_control:

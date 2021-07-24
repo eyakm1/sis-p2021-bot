@@ -1,0 +1,63 @@
+- include_tasks: check_environment.yml
+- name: Copy files
+  synchronize:
+    src: '{{ playbook_dir }}/../../'
+    dest: '{{ deploy_dir }}'
+    archive: yes
+    delete: yes
+    owner: no
+    group: no
+    rsync_opts:
+      - "--exclude=venv"
+      - "--exclude=ci"
+      - "--exclude=logs"
+      - "--exclude=.git"
+- name: Set permissions
+  file:
+    path: '{{ deploy_dir }}'
+    owner: reviewbot
+    group: reviewbot
+    recurse: yes
+- include_tasks: pre_configure_component.yml
+  loop_control:
+    loop_var: component
+  loop:
+    - bot
+    - scraper
+    - tlm
+- name: Daemon-reload
+  systemd:
+    daemon_reload: yes
+- include_tasks: nginx_config.yml
+- name: Install dependencies
+  become: true
+  become_user: reviewbot
+  pip:
+    chdir: '{{ deploy_dir }}'
+    requirements: '{{ requirements_file }}'
+    virtualenv: /opt/reviewbot/venv
+    virtualenv_command: '/usr/bin/python3 -m venv'
+    extra_args: '-i https://mirror.p.lksh.ru/pypi/simple'
+  loop_control:
+    loop_var: requirements_file
+  loop:
+    - common/requirements.txt
+    - bot/requirements.txt
+    - scraper/requirements.txt
+    - tlm/requirements.txt
+- name: Run django migrations
+  command:
+    chdir: '{{ deploy_dir }}'
+    cmd: '{{ deploy_dir }}/venv/bin/python manage.py migrate'
+- name: Start components
+  systemd:
+    state: started
+    name: p-{{ component }}
+    enabled: true
+  loop_control:
+    loop_var: component
+  loop:
+    - bot
+    - scraper
+    - tlm
+    - tlm.socket

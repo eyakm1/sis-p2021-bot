@@ -15,8 +15,8 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'mydb',
-        'USER': 'myuser',
+        'NAME': os.getenv('DB_NAME', default='mydb'),
+        'USER': os.getenv('DB_USER', default='myuser'),
         'PASSWORD': os.getenv('DB_PASSWORD', default='db'),
         'HOST': '127.0.0.1',
         'PORT': '3306',

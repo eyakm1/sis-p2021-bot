@@ -1,0 +1,21 @@
+[Unit]
+After=network.target
+Requires=p-tlm.service
+
+[Service]
+User=scraper
+Group=reviewbot
+Restart=always
+RestartSec=3
+WorkingDirectory={{ deploy_dir }}
+ExecStart='{{ deploy_dir }}/venv/bin/python' -m scraper
+Environment='API_BASE={{ api_base }}'
+Environment='PROXY_AUTH_TOKEN={{ proxy_auth_token }}'
+Environment='EJUDGE_NEW_JUDGE_URL={{ ejudge_new_judge_url }}'
+Environment='SCRAPE_INTERVAL_SECONDS={{ scrape_interval_seconds }}'
+Environment='SCRAPER_CERTIFICATE_PATH={{ scraper_certificate_path }}'
+Environment='SCRAPER_CERTIFICATE_KEY_PATH={{ scraper_certificate_key_path }}'
+Environment='REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt'
+
+[Install]
+WantedBy=multi-user.target

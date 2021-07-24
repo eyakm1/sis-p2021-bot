@@ -91,27 +91,38 @@ Test Python:
     - 'echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config'
     - ssh-add <(echo $SSH_PRIVATE_KEY | base64 -d)
 
-.deploy_staging:
+Deploy TLM schema:
+  dependencies:
+    - Build TLM schema
   extends: .deploy_setup
+  script:
+    - scp ci/schema/openapi.json deployer@$SSH_SCHEMA_HOST:$SCHEMA_DEPLOY_PATH
+  only:
+    - main
+    - prod
+
+.deploy_components:
+  extends: .deploy_setup
+  script:
+    - cd ci/ansible
+    - source config.$CI_ENVIRONMENT_NAME.sh
+    - ansible-playbook -i $SSH_HOST, deploy.yml
+
+Deploy staging:
+  extends: .deploy_components
   environment:
     name: staging
   rules:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       when: on_success
-    - if: $CI_COMMIT_BRANCH == "ci-cd"
+    - if: $CI_COMMIT_BRANCH == "deployment"
       when: manual
-    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_COMMIT_BRANCH != "ci-cd"
+    - if: $CI_COMMIT_BRANCH != $CI_DEFAULT_BRANCH && $CI_COMMIT_BRANCH != "deployment"
       when: never
 
-Deploy TLM schema:
-  dependencies:
-    - Build TLM schema
-  extends: .deploy_staging
-  script:
-    - scp ci/schema/openapi.json deployer@$SSH_SCHEMA_HOST:$SCHEMA_DEPLOY_PATH
-
-Deploy stub:
-  extends: .deploy_staging
-  script:
-    - cd ci
-    - ansible-playbook -i $SSH_HOST, deploy-stub.yml
+Deploy prod:
+  extends: .deploy_components
+  environment:
+    name: production
+  only:
+    - prod

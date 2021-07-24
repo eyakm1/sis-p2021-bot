@@ -7,3 +7,5 @@ venv/
 ci/openapi.json
 static/
 logs/
+bot/config.py
+.gitignore

@@ -1,0 +1,22 @@
+[Unit]
+After=network.target
+Requires=p-tlm.socket
+
+[Service]
+Type=notify
+Group=reviewbot
+Restart=always
+RuntimeDirectory=tlm
+WorkingDirectory={{ deploy_dir }}
+ExecStart='{{ deploy_dir }}/venv/bin/gunicorn' common.django_conf.wsgi
+ExecReload=/bin/kill -s HUP $MAINPID
+KillMode=mixed
+RestartSec=3
+TimeoutStopSec=5
+Environment='DB_NAME={{ db_name }}'
+Environment='DB_USER={{ db_user }}'
+Environment='DB_PASSWORD={{ db_password }}'
+Environment='REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt'
+
+[Install]
+WantedBy=multi-user.target

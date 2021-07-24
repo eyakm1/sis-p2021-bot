@@ -14,7 +14,8 @@ def post_submissions(request_body: JsonList) -> None:
                                                                login=submission_data['login'],
                                                                problem=submission_data['problem'],
                                                                defaults=
-                                                               {'chat_rid': submission_data['rid']})
+                                                               {'rid': submission_data['rid'],
+                                                                'chat_rid': submission_data['rid']})
         submission.rid = submission_data['rid']
         if not created and submission.status == 'closed':
             submission.status = 'assigned'

@@ -1,23 +1,31 @@
 from typing import Optional
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from telebot import apihelper
-from logger import get_logger
-from submission import Submission
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+
+from bot.logger import get_logger
+from bot.submission import Submission
 
 notification_logger = get_logger("notifications")
 
 
+def prepare_for_hashtag(s: str):
+    replaced = re.sub(r'\W', '_', s)  # replace non-alphanumeric symbols with _
+    return re.sub(r'_+', '_', replaced)  # merge consequent underscores
+
+
 def generate_notify_markup(callback_data: int) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("\U00002705 Взять", callback_data=f"take {callback_data}"))
+    markup.add(InlineKeyboardButton("\U00002705 Взять", callback_data=f"assigned {callback_data}"))
     return markup
 
 
 def generate_individual_markup(callback_data: int) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
     markup.row_width = 2
-    markup.add(InlineKeyboardButton("\U000021A9 Вернуть", callback_data=f"return {callback_data}"))
-    markup.add(InlineKeyboardButton("\U0000274C Закрыть", callback_data=f"close {callback_data}"))
+    markup.add(InlineKeyboardButton("\U000021A9 Вернуть",
+                                    callback_data=f"unassigned {callback_data}"))
+    markup.add(InlineKeyboardButton("\U0000274C Закрыть", callback_data=f"closed {callback_data}"))
     return markup
 
 
@@ -54,7 +62,7 @@ def send_assigned_by_submission_id(bot, message: str, chat_id: int, submission_i
     return send(bot, chat_id, message, markup)
 
 
-def delete_message(bot, message_id: int, chat_id: int) -> bool:
+def delete_message(bot, chat_id: int, message_id: int) -> bool:
     try:
         notification_logger.debug("Deleting message with id %d from chat %d",
                                   message_id, chat_id)

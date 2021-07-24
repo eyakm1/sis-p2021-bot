@@ -1,0 +1,20 @@
+- name: Set {{ component }} permissions
+  file:
+    path: '{{ deploy_dir }}/{{ component }}'
+    owner: '{{ component }}'
+    group: reviewbot
+    recurse: yes
+- name: Install {{ component }} service
+  template:
+    src: '{{ component }}.service'
+    dest: /etc/systemd/system/p-{{ component }}.service
+- name: Install {{ component }} socket
+  template:
+    src: '{{ component }}.socket'
+    dest: /etc/systemd/system/p-{{ component }}.socket
+  when: component == 'tlm'
+- name: Stop {{ component }}
+  systemd:
+    state: stopped
+    name: p-{{ component }}
+    enabled: false

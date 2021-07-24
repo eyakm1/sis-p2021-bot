@@ -1,0 +1,43 @@
+- name: Generate rootca
+  command:
+    chdir: /etc/certs/ca
+    cmd: '{{ command }}'
+  loop:
+    - openssl genrsa -out ca.key 4096
+    - openssl req -new -x509 -key ca.key -out ca.crt -subj '/C=RU/O=SIS P 2021/CN=Reviewbot CA'
+  loop_control:
+    loop_var: command
+- name: Set permissions rootca
+  file:
+    path: /etc/certs/ca/{{ item[0] }}
+    owner: root
+    group: reviewbot
+    mode: '{{ item[1] }}'
+  loop:
+    - ['ca.key', '0600']
+    - ['ca.crt', '0644']
+- name: Add tlm to hosts
+  lineinfile:
+    dest: /etc/hosts
+    line: "127.0.0.1 tlm"
+    state: present
+- name: Copy rootca to ca-certificates
+  copy:
+    src: /etc/certs/ca/ca.crt
+    remote_src: yes
+    dest: /usr/local/share/ca-certificates/extra/root.crt
+- name: Generate certs
+  include_tasks: generate_cert.yml
+  loop_control:
+    loop_var: component
+  loop:
+    - bot
+    - scraper
+    - tlm
+
+- name: Set TLM certs permissions
+  file:
+    path: /etc/certs/tlm
+    owner: www-data
+    group: reviewbot
+    recurse: yes

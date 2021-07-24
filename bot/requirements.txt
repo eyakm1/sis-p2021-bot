@@ -1,3 +1,2 @@
 pytelegrambotapi
-django
-mysqlclient
+attrs

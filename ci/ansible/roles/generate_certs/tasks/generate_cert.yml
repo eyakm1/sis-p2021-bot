@@ -1,0 +1,20 @@
+- name: Generate certs for {{ component }}
+  command:
+    chdir: /etc/certs/{{ component }}
+    cmd: '{{ command }}'
+  loop:
+    - openssl genrsa -out {{ component }}.key 4096
+    - openssl req -new -key {{ component }}.key -out {{ component }}.csr -subj "/C=RU/O=SIS P 2021/CN={{ component }}"
+    - openssl x509 -req -in {{ component }}.csr -CA /etc/certs/ca/ca.crt -CAkey /etc/certs/ca/ca.key -CAcreateserial -out {{ component }}.crt
+  loop_control:
+    loop_var: command
+- name: Set permissions for {{ component }}
+  file:
+    path: /etc/certs/{{ component }}/{{ item[0] }}
+    owner: '{{ component }}'
+    group: 'reviewbot'
+    mode: '{{ item[1] }}'
+  loop:
+    - ['{{ component }}.key', '0600']
+    - ['{{ component }}.csr', '0600']
+    - ['{{ component }}.crt', '0640']

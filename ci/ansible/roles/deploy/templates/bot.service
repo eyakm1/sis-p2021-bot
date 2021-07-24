@@ -1,0 +1,21 @@
+[Unit]
+After=network.target
+Requires=p-tlm.service
+
+[Service]
+User=bot
+Group=reviewbot
+Restart=always
+RestartSec=3
+WorkingDirectory={{ deploy_dir }}
+ExecStart='{{ deploy_dir }}/venv/bin/python' -m bot
+Environment='BOT_TOKEN={{ bot_token }}'
+Environment='API_BASE={{ api_base }}'
+Environment='BOT_POLL_INTERVAL_SECONDS={{ bot_poll_interval_seconds }}'
+Environment='DJANGO_SECRET_KEY={{ django_secret_key }}'
+Environment='BOT_CERT_FILE_PATH={{ bot_cert_file_path }}'
+Environment='BOT_CERT_KEY_FILE_PATH={{ bot_cert_key_file_path }}'
+Environment='REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt'
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,54 @@
+- set_fact:
+    bot_token: "{{ lookup('env', 'BOT_TOKEN') }}"
+    db_name: "{{ lookup('env', 'DB_NAME') }}"
+    db_user: "{{ lookup('env', 'DB_USER') }}"
+    db_password: "{{ lookup('env', 'DB_PASSWORD') }}"
+    api_base: "{{ lookup('env', 'API_BASE') }}"
+    proxy_auth_token: "{{ lookup('env', 'PROXY_AUTH_TOKEN') }}"
+    ejudge_new_judge_url: "{{ lookup('env', 'EJUDGE_NEW_JUDGE_URL') }}"
+    bot_poll_interval_seconds: "{{ lookup('env', 'BOT_POLL_INTERVAL_SECONDS') }}"
+    scrape_interval_seconds: "{{ lookup('env', 'SCRAPE_INTERVAL_SECONDS') }}"
+    scraper_certificate_path: "{{ lookup('env', 'SCRAPER_CERTIFICATE_PATH') }}"
+    bot_cert_file_path: "{{ lookup('env', 'BOT_CERT_FILE_PATH') }}"
+    scraper_certificate_key_path: "{{ lookup('env', 'SCRAPER_CERTIFICATE_KEY_PATH') }}"
+    bot_cert_key_file_path: "{{ lookup('env', 'BOT_CERT_KEY_FILE_PATH') }}"
+    django_secret_key: "{{ lookup('env', 'DJANGO_SECRET_KEY') }}"
+- fail:
+    msg: BOT_TOKEN is not set
+  when: bot_token == ''
+- fail:
+    msg: DB_NAME is not set
+  when: db_name == ''
+- fail:
+    msg: DB_USER is not set
+  when: db_user == ''
+- fail:
+    msg: DB_PASSWORD is not set
+  when: db_password == ''
+- fail:
+    msg: API_BASE is not set
+  when: api_base == ''
+- fail:
+    msg: EJUDGE_NEW_JUDGE_URL is not set
+  when: ejudge_new_judge_url == ''
+- fail:
+    msg: BOT_POLL_INTERVAL_SECONDS is not set
+  when: bot_poll_interval_seconds == ''
+- fail:
+    msg: SCRAPE_INTERVAL_SECONDS is not set
+  when: scrape_interval_seconds == ''
+- fail:
+    msg: SCRAPER_CERTIFICATE_PATH is not set
+  when: scraper_certificate_path == ''
+- fail:
+    msg: SCRAPER_CERTIFICATE_KEY_PATH is not set
+  when: scraper_certificate_key_path == ''
+- fail:
+    msg: BOT_CERT_FILE_PATH is not set
+  when: bot_cert_file_path == ''
+- fail:
+    msg: BOT_CERT_KEY_FILE_PATH is not set
+  when: bot_cert_key_file_path == ''
+- fail:
+    msg: DJANGO_SECRET_KEY is not set
+  when: django_secret_key == ''

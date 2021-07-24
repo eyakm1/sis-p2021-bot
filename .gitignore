@@ -5,4 +5,7 @@ dist/
 .env/
 venv/
 ci/openapi.json
-bot/logs/
+static/
+logs/
+bot/config.py
+.gitignore

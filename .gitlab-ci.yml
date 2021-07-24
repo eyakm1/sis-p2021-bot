@@ -95,6 +95,8 @@ Deploy TLM schema:
   dependencies:
     - Build TLM schema
   extends: .deploy_setup
+  environment:
+    name: staging
   script:
     - scp ci/schema/openapi.json deployer@$SSH_SCHEMA_HOST:$SCHEMA_DEPLOY_PATH
   only:

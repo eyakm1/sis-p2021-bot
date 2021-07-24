@@ -39,12 +39,13 @@ def add_submissions(request: HttpRequest) -> HttpResponse:
 def confirm_send(request: HttpRequest, submission_id: int) -> HttpResponse:
     body = parse_request_body(request)
 
-    if (body.get('tg_msg') is None) or (not isinstance(body['tg_msg'], dict)):
+    if not isinstance(body.get('tg_msg'), dict):
         return HttpResponse(status=400)
-    if (body['tg_msg'].get('chat_id') is None) or (not isinstance(body['tg_msg']['chat_id'], int)):
+    if not isinstance(body['tg_msg'].get('chat_id'), int):
         return HttpResponse(status=400)
-    if (body['tg_msg'].get('message_id') is None) or \
-       (not isinstance(body['tg_msg']['message_id'], int)):
+    if not isinstance(body['tg_msg'].get('message_id'), int):
+        return HttpResponse(status=400)
+    if not isinstance(body.get('rid'), int):
         return HttpResponse(status=400)
 
     db_manager.confirm_send(submission_id, body)

@@ -27,6 +27,7 @@ Install dependencies:
     - if [ ! -d venv ]; then python -m venv venv; fi
     - source venv/bin/activate
   script:
+    - pip install -r common/requirements.txt
     - pip install -r bot/requirements.txt
     - pip install -r scraper/requirements.txt
     - pip install -r tlm/requirements.txt

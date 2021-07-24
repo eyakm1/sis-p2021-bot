@@ -22,7 +22,8 @@ def build_newjudge_url(contest_id: int, query_filter: str, first_rid: int = 0) -
         {
             'contest_id': contest_id,
             'filter_expr': query_filter,
-            'filter_first_run': first_rid,
+            # ejudge is dumb
+            'filter_last_run': first_rid,
         }
     )
     parse_url = parse_url._replace(query=query_params)

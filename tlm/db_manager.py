@@ -5,26 +5,24 @@ from django.db.models import F, Q
 from django.shortcuts import get_object_or_404
 from tlm.models import Submission
 from tlm.models import JsonObj, JsonList
-from tlm.config import resend_interval
+from tlm import config
 
 
 def post_submissions(request_body: JsonList) -> None:
     for submission_data in request_body:
-        submission, created = Submission.objects.get_or_create(cid=submission_data['cid'],
-                                                               login=submission_data['login'],
-                                                               problem=submission_data['problem'],
-                                                               defaults=
-                                                               {'rid': submission_data['rid'],
-                                                                'chat_rid': submission_data['rid']})
+        submission, _ = Submission.objects.get_or_create(cid=submission_data['cid'],
+                                                         login=submission_data['login'],
+                                                         problem=submission_data['problem'],
+                                                         defaults={'rid': submission_data['rid']})
         submission.rid = submission_data['rid']
-        if not created and submission.status == 'closed':
+        if submission.status == 'closed':
             submission.status = 'assigned'
 
         submission.save()
 
 
 def get_waiting() -> JsonList:
-    waiting_filter = Q(sent_to_chat=False, rid=None,
+    waiting_filter = Q(sent_to_chat=False, chat_rid=None,
                        status__in=['assigned', 'unassigned'])
     waiting = Submission.objects.filter(waiting_filter)
 
@@ -36,7 +34,7 @@ def get_waiting() -> JsonList:
 def get_to_delete() -> JsonList:
     delete_filter = Q(sent_to_chat=True) & (
             Q(status='closed') |
-            Q(last_update_time__lt=datetime.now() - resend_interval,
+            Q(last_update_time__lt=datetime.now() - config.resend_interval,
               status__in=['assigned', 'unassigned']) |
             ~Q(rid=F('chat_rid'))
     )

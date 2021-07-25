@@ -1,12 +1,7 @@
 import urllib.parse
-from typing import List, Dict
+import pathlib
 
-from bs4 import Tag
-
-from scraper.config import (
-    EJUDGE_NEW_JUDGE_URL,
-    SUBMISSION_FIELDS_EJUDGE_NAMES,
-)
+from scraper import config
 
 
 def build_newjudge_url(contest_id: int, query_filter: str, first_rid: int = 0) -> str:
@@ -17,7 +12,7 @@ def build_newjudge_url(contest_id: int, query_filter: str, first_rid: int = 0) -
     :param first_rid: first run id which will be returned by ejudge
     :return: ejudge query URL
     """
-    parse_url = urllib.parse.urlparse(EJUDGE_NEW_JUDGE_URL)
+    parse_url = urllib.parse.urlparse(config.EJUDGE_PROXY_BASE_URL)
     query_params = urllib.parse.urlencode(
         {
             'contest_id': contest_id,
@@ -27,15 +22,19 @@ def build_newjudge_url(contest_id: int, query_filter: str, first_rid: int = 0) -
         }
     )
     parse_url = parse_url._replace(query=query_params)
-    url = urllib.parse.urlunparse(parse_url)
-    return url
+    new_path = str(pathlib.PurePosixPath(parse_url.path, 'new-judge'))
+    parse_url = parse_url._replace(path=new_path)
+    return parse_url.geturl()
 
 
-def build_column_field_mapping(header_col: List[Tag]) -> Dict[str, int]:
-    header_col = [ele.text.strip() for ele in header_col]
-    column_field_mapping = dict()
-    for column, column_header in enumerate(header_col):
-        submission_field = SUBMISSION_FIELDS_EJUDGE_NAMES.get(column_header, None)
-        if submission_field:
-            column_field_mapping[submission_field] = column
-    return column_field_mapping
+def build_view_run_url(contest_id: int, run_id: int) -> str:
+    """
+    Build ejudge URL to judge submission
+    :param contest_id: contest id of submission
+    :param run_id: Contest run id of submission
+    :return: ejudge URL
+    """
+    parse_url = urllib.parse.urlparse(config.EJUDGE_PROXY_BASE_URL)
+    new_path = str(pathlib.PurePosixPath(parse_url.path, f'c{contest_id}', f'r{run_id}'))
+    parse_url = parse_url._replace(path=new_path)
+    return parse_url.geturl()

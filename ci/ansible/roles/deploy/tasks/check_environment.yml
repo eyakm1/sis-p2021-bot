@@ -26,11 +26,11 @@
     msg: DB_PASSWORD is not set
   when: db_password == ''
 - fail:
-    msg: API_BASE is not set
-  when: api_base == ''
+    msg: API_BASE_URL is not set
+  when: api_base_url == ''
 - fail:
-    msg: EJUDGE_NEW_JUDGE_URL is not set
-  when: ejudge_new_judge_url == ''
+    msg: EJUDGE_PROXY_BASE_URL is not set
+  when: ejudge_proxy_base_url == ''
 - fail:
     msg: BOT_POLL_INTERVAL_SECONDS is not set
   when: bot_poll_interval_seconds == ''

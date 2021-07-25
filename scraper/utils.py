@@ -38,3 +38,10 @@ def build_view_run_url(contest_id: int, run_id: int) -> str:
     new_path = str(pathlib.PurePosixPath(parse_url.path, f'c{contest_id}', f'r{run_id}'))
     parse_url = parse_url._replace(path=new_path)
     return parse_url.geturl()
+
+
+def build_api_url(path: str) -> str:
+    api_submissions_url_parse = urllib.parse.urlparse(config.API_BASE_URL)
+    api_submissions_path = str(pathlib.PurePosixPath(api_submissions_url_parse.path, path))
+    api_submissions_url_parse = api_submissions_url_parse._replace(path=api_submissions_path)
+    return api_submissions_url_parse.geturl()

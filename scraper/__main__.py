@@ -7,14 +7,11 @@ import time
 import os
 
 import requests
-import pathlib
-
 from common.models.models import Contest
-from scraper import config
+from scraper import config, utils
 from scraper.ej_parser import ContestParser
 
-API_SUBMISSIONS_POST_URL = str(pathlib.PurePosixPath(config.API_BASE_URL, 'submissions'))
-
+API_SUBMISSIONS_POST_URL = utils.build_api_url('submissions')
 # Logging setup
 
 os.makedirs(config.LOGS_DIR, exist_ok=True)

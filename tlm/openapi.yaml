@@ -39,6 +39,9 @@ components:
         assignee:
           type: "integer"
           description: "Telegram chat id with assigned reviewer"
+        link:
+          type: "string"
+          description: "Link to submission review page"
         status:
           $ref: "#/components/schemas/SubmissionStatus"
 paths:
@@ -66,6 +69,9 @@ paths:
                   problem:
                     type: "string"
                     description: "Problem name"
+                  link:
+                    type: "string"
+                    description: "Link to submission review page"
       responses:
         '200':
           description: "OK"

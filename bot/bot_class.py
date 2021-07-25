@@ -25,7 +25,8 @@ class Bot(telebot.TeleBot):
                 cid=to_send["cid"],
                 rid=to_send["rid"],
                 login=to_send["login"],
-                problem=to_send["problem"]
+                problem=to_send["problem"],
+                link=to_send["link"]
             )
             bot_class_logger.info("Processing new submission %d...",
                                   submission.id)

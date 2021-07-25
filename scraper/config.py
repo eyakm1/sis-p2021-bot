@@ -1,18 +1,14 @@
 import os
 
-EJUDGE_NEW_JUDGE_URL = os.getenv('EJUDGE_NEW_JUDGE_URL', r"http://ejudge.lksh.ru/ej/new-judge")
-EJUDGE_PR_FILTER = r"status==pr"
-PROXY_AUTH_TOKEN = os.getenv('PROXY_AUTH_TOKEN', '')
-API_SUBMISSIONS_POST_URL = os.getenv('API_BASE', '') + '/submissions'
-SCRAPE_INTERVAL_SECONDS = float(os.getenv('SCRAPE_INTERVAL_SECONDS', '300'))
-CERTIFICATE_PATH = os.getenv('SCRAPER_CERTIFICATE_PATH', '')
-CERTIFICATE_KEY_PATH = os.getenv('SCRAPER_CERTIFICATE_KEY_PATH', '')
+# All urls are processed with pathlib so it doesn't matter whether they end with slash or not
 
-SUBMISSION_FIELDS_EJUDGE_NAMES = {
-    'Run ID': 'rid',
-    'User name': 'login',
-    'Problem': 'problem',
-}
+EJUDGE_PROXY_BASE_URL = os.getenv('EJUDGE_PROXY_BASE_URL',
+                                  default='https://ejudge.p.lksh.ru/ej/')
+PROXY_AUTH_TOKEN = os.getenv('PROXY_AUTH_TOKEN', default='')
+API_BASE_URL = os.getenv('API_BASE_URL', default='https://127.0.0.1:8000/')
+CERTIFICATE_PATH = os.getenv('SCRAPER_CERTIFICATE_PATH', default='')
+CERTIFICATE_KEY_PATH = os.getenv('SCRAPER_CERTIFICATE_KEY_PATH', default='')
+SCRAPE_INTERVAL_SECONDS = float(os.getenv('SCRAPE_INTERVAL_SECONDS', '300'))
 
 LOG_FILE_UPDATE_INTERVAL_HOURS = 1
 LOGS_BACKUP_FILE_COUNT = 24 * 7

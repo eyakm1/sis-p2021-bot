@@ -13,8 +13,11 @@ def post_submissions(request_body: JsonList) -> None:
         submission, _ = Submission.objects.get_or_create(cid=submission_data['cid'],
                                                          login=submission_data['login'],
                                                          problem=submission_data['problem'],
-                                                         defaults={'rid': submission_data['rid']})
+                                                         defaults=
+                                                         {'rid': submission_data['rid'],
+                                                          'judge_link': submission_data['link']})
         submission.rid = submission_data['rid']
+        submission.judge_link = submission_data['link']
         if submission.status == 'closed':
             submission.status = 'assigned'
 

@@ -9,3 +9,4 @@ class Submission:
     rid: int
     login: str
     problem: str
+    link: str

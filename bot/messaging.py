@@ -35,7 +35,8 @@ def generate_individual_markup(callback_data: int) -> InlineKeyboardMarkup:
 def generate_message(submission: Submission) -> str:
     return f"#{prepare_for_hashtag(str(submission.cid), 'c')}, " \
            f"#{prepare_for_hashtag(submission.problem, 'p')}, " \
-           f"#{prepare_for_hashtag(submission.login, 'u')}"
+           f"#{prepare_for_hashtag(submission.login, 'u')}, " \
+           f"{submission.link}"
 
 
 def send(bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) -> Optional[int]:

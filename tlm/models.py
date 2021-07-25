@@ -10,7 +10,8 @@ Json = TypeVar('Json', JsonList, JsonObj)
 submission_fields = {'cid': int,
                      'rid': int,
                      'login': str,
-                     'problem': str}
+                     'problem': str,
+                     'link': str}
 
 
 class Submission(models.Model):
@@ -18,6 +19,7 @@ class Submission(models.Model):
     rid = models.BigIntegerField(null=False)
     login = models.CharField(max_length=255, null=False)
     problem = models.CharField(max_length=255, null=False)
+    judge_link = models.CharField(max_length=255, null=False)
 
     status = models.CharField(max_length=20, default='unassigned')
     assignee = models.BigIntegerField(null=True)
@@ -35,7 +37,8 @@ class Submission(models.Model):
                'login': self.login,
                'problem': self.problem,
                'assignee': self.assignee,
-               'status': self.status}
+               'status': self.status,
+               'link': self.judge_link}
         return res
 
     def tg_msg_dict(self) -> JsonObj:

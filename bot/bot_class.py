@@ -12,6 +12,8 @@ from bot.submission import Submission
 
 bot_class_logger = get_logger("bot_class")
 
+telebot.apihelper.READ_TIMEOUT = 20
+
 
 class Bot(telebot.TeleBot):
     def process_waiting(self):

@@ -1,6 +1,6 @@
 import functools
 from typing import Callable, List
-from datetime import datetime
+from django.utils import timezone
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import BadRequest
@@ -46,7 +46,7 @@ def get_waiting() -> JsonList:
 def get_to_delete() -> JsonList:
     delete_filter = Q(sent_to_chat=True) & (
             Q(status='closed') |
-            Q(last_update_time__lt=datetime.now() - config.resend_interval,
+            Q(last_update_time__lt=timezone.now() - config.resend_interval,
               status__in=['assigned', 'unassigned']) |
             ~Q(rid=F('chat_rid'))
     )
@@ -73,7 +73,7 @@ def confirm_send(submission: Submission, request_body: JsonObj) -> None:
     submission.message_id = request_body['tg_msg']['message_id']
     submission.chat_id = request_body['tg_msg']['chat_id']
     submission.chat_rid = request_body['rid']
-    submission.last_update_time = datetime.now()
+    submission.last_update_time = timezone.now()
     submission.sent_to_chat = True
 
 

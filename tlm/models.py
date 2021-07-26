@@ -14,15 +14,20 @@ submission_fields = {'cid': int,
                      'link': str}
 
 
+class Subscription(models.Model):
+    cid = models.BigIntegerField(null=False, primary_key=True, unique=True)
+    chat_id = models.BigIntegerField(null=True)
+
+
 class Submission(models.Model):
     cid = models.BigIntegerField(null=False)
     rid = models.BigIntegerField(null=False)
     login = models.CharField(max_length=255, null=False)
     problem = models.CharField(max_length=255, null=False)
-    judge_link = models.CharField(max_length=255, null=False)
 
+    judge_link = models.CharField(max_length=255, null=False)
     status = models.CharField(max_length=20, default='unassigned')
-    assignee = models.BigIntegerField(null=True)
+    target_chat_id = models.BigIntegerField(null=True)
     chat_rid = models.BigIntegerField(null=True)
     chat_id = models.BigIntegerField(null=True)
     message_id = models.BigIntegerField(null=True)
@@ -36,7 +41,7 @@ class Submission(models.Model):
                'rid': self.rid,
                'login': self.login,
                'problem': self.problem,
-               'assignee': self.assignee,
+               'chat_id': self.target_chat_id,
                'status': self.status,
                'link': self.judge_link}
         return res

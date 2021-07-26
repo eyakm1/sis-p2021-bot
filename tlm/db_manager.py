@@ -1,9 +1,10 @@
 import functools
-from typing import Callable
+from typing import Callable, List
 from datetime import datetime
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404
-from tlm.models import Submission
+from django.core.exceptions import BadRequest
+from tlm.models import Submission, Subscription
 from tlm.models import JsonObj, JsonList
 from tlm import config
 
@@ -16,17 +17,25 @@ def post_submissions(request_body: JsonList) -> None:
                                                          defaults=
                                                          {'rid': submission_data['rid'],
                                                           'judge_link': submission_data['link']})
+        if submission.status == 'closed':
+            if not submission.target_chat_id:
+                submission.status = 'unassigned'
+            else:
+                submission.status = 'assigned'
+
+        # This subscription always exists as we do not explicitly delete them
+        submission_subscription = Subscription.objects.get(cid=submission.cid)
+        if submission.status == 'unassigned':
+            submission.target_chat_id = submission_subscription.chat_id
         submission.rid = submission_data['rid']
         submission.judge_link = submission_data['link']
-        if submission.status == 'closed':
-            submission.status = 'assigned'
 
         submission.save()
 
 
 def get_waiting() -> JsonList:
     waiting_filter = Q(sent_to_chat=False, chat_rid=None,
-                       status__in=['assigned', 'unassigned'])
+                       status__in=['assigned', 'unassigned']) & ~Q(target_chat_id=None)
     waiting = Submission.objects.filter(waiting_filter)
 
     submissions_list = [submission.submission_dict() for submission in waiting]
@@ -72,15 +81,51 @@ def confirm_send(submission: Submission, request_body: JsonObj) -> None:
 def confirm_delete(submission: Submission) -> None:
     submission.sent_to_chat = False
     submission.chat_rid = None
+    submission.chat_id = None
+    submission.message_id = None
 
 
 @submission_op
 def update_status(submission: Submission, status: str) -> None:
-    submission.status = status
     if status == 'unassigned':
-        submission.assignee = None
+        # This subscription always exists as we do not explicitly delete them
+        submission_subscription = Subscription.objects.get(cid=submission.cid)
+        submission.target_chat_id = submission_subscription.chat_id
+    if status == 'closed' and submission.status == 'unassigned':
+        # This assignee will be restored to group id on next scraping
+        submission.target_chat_id = None
+    submission.status = status
 
 
 @submission_op
 def update_assignee(submission: Submission, assignee: int) -> None:
-    submission.assignee = assignee
+    submission.target_chat_id = assignee
+
+
+def subscribe(cid: int, chat_id: int) -> None:
+    subscription, _ = Subscription.objects.get_or_create(cid=cid)
+    if subscription.chat_id:
+        raise BadRequest('There is a chat subscribed to this contest')
+    subscription.chat_id = chat_id
+    subscription.save()
+
+
+def unsubscribe(cid: int, chat_id: int) -> None:
+    subscription = get_object_or_404(Subscription, cid=cid)
+
+    if subscription.chat_id != chat_id:
+        raise BadRequest('Another chat is subscribed to this contest')
+
+    subscription.chat_id = None
+    subscription.save()
+
+
+def unsubscribe_all(chat_id: int) -> None:
+    all_subscriptions = Subscription.objects.filter(chat_id=chat_id)
+    all_subscriptions.update(chat_id=None)
+
+
+def get_contests() -> List[int]:
+    contests_list = [subscription.cid
+                     for subscription in Subscription.objects.filter(~Q(chat_id=None))]
+    return contests_list

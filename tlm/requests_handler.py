@@ -88,3 +88,41 @@ def update_assignee(request: HttpRequest, submission_id: int) -> HttpResponse:
 
     db_manager.update_assignee(submission_id, body)
     return HttpResponse(status=200)
+
+
+@require_http_methods(['PUT'])
+def subscribe_contest(request: HttpRequest, cid: int) -> HttpResponse:
+    body = parse_request_body(request)
+
+    if not isinstance(body, int):
+        return HttpResponse(status=400)
+
+    db_manager.subscribe(cid, body)
+    return HttpResponse(status=200)
+
+
+@require_http_methods(['PUT'])
+def unsubscribe_contest(request: HttpRequest, cid: int) -> HttpResponse:
+    body = parse_request_body(request)
+
+    if not isinstance(body, int):
+        return HttpResponse(status=400)
+
+    db_manager.unsubscribe(cid, body)
+    return HttpResponse(status=200)
+
+
+@require_POST
+def unsubscribe_all(request: HttpRequest) -> HttpResponse:
+    body = parse_request_body(request)
+
+    if not isinstance(body, int):
+        return HttpResponse(status=400)
+
+    db_manager.unsubscribe_all(body)
+    return HttpResponse(status=200)
+
+
+@require_GET
+def contests(_) -> HttpResponse:
+    return JsonResponse(db_manager.get_contests(), status=200, safe=False)

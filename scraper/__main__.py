@@ -11,7 +11,6 @@ from common.models.models import Contest
 from scraper import config, utils
 from scraper.ej_parser import ContestParser
 
-API_SUBMISSIONS_POST_URL = utils.build_api_url('submissions')
 # Logging setup
 
 os.makedirs(config.LOGS_DIR, exist_ok=True)
@@ -34,13 +33,17 @@ def main():
         session.cert = (config.CERTIFICATE_PATH, config.CERTIFICATE_KEY_PATH)
     while True:
         try:
-            for contest in Contest.objects.all():
+            all_contest_resp = session.get(utils.build_api_url('contests'))
+            all_contest_id = all_contest_resp.json()
+            for contest_id in all_contest_id:
+                contest, _ = Contest.objects.get_or_create(cid=contest_id)
                 logging.info("Scraping contest %d", contest.cid)
                 parser = ContestParser(contest.cid, contest.last_run_id)
                 new_pr_submissions = parser.parse_all_new_pr()
                 if len(new_pr_submissions) == 0:
                     continue
-                response = session.post(API_SUBMISSIONS_POST_URL, json=new_pr_submissions)
+                response = session.post(utils.build_api_url('submissions'),
+                                        json=new_pr_submissions)
                 if response.status_code != 200:
                     logging.warning("Send new PR submissions to TLM failed for contest %d",
                                     contest.cid)

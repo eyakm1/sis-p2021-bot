@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: "TLM API"
   description: "API for Task Lifecycle Manager"
-  version: 0.2.0
+  version: 0.3.0
 components:
   schemas:
     SubmissionStatus:
@@ -36,9 +36,9 @@ components:
         problem:
           type: "string"
           description: "Problem name"
-        assignee:
+        chat_id:
           type: "integer"
-          description: "Telegram chat id with assigned reviewer"
+          description: "Telegram chat id of group or chat with assigned reviewer"
         link:
           type: "string"
           description: "Link to submission review page"
@@ -106,6 +106,18 @@ paths:
                       $ref: "#/components/schemas/DatabaseId"
                     tg_msg:
                       $ref: "#/components/schemas/TelegramMessage"
+  /contests:
+    get:
+      summary: "get contests to be scraped"
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: "integer"
   /submissions/{submission_id}/confirm/send:
     put:
       summary: "Confirm that the message in Telegram with given submission was sent"
@@ -187,3 +199,53 @@ paths:
           description: "OK"
         '404':
           description: "Submission with given ID not found"
+  /contests/{cid}/subscribe:
+    put:
+      summary: "Subscribe chat to contest"
+      parameters:
+        - in: path
+          name: cid
+          schema:
+            type: "integer"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "integer"
+              description: "ID of Telegram chat to subscribe to contest"
+      responses:
+        '200':
+          description: "OK"
+  /contests/{cid}/unsubscribe:
+    put:
+      summary: "Unsubscribe chat from contest"
+      parameters:
+        - in: path
+          name: cid
+          schema:
+            type: "integer"
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "integer"
+              description: "ID of telegram chat where unsubscribe command was sent"
+      responses:
+        '200':
+          description: "OK"
+        '404':
+          description: "There was no subscription on contest with given cid"
+  /contests/all/unsubscribe:
+    post:
+      summary: "unsubscribe chat from all contests"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: "integer"
+              description: "ID of telegram chat to unsubscribe"
+      responses:
+        '200':
+          description: "OK"

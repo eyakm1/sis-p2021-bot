@@ -24,6 +24,10 @@ from tlm.requests_handler import (
     delete,
     update_assignee,
     update_status,
+    subscribe_contest,
+    unsubscribe_contest,
+    unsubscribe_all,
+    contests
 )
 
 urlpatterns = [
@@ -33,5 +37,9 @@ urlpatterns = [
     path('waiting', waiting),
     path('to_delete', delete),
     path('submissions/<int:submission_id>/status', update_status),
-    path('submissions/<int:submission_id>/assignee', update_assignee)
+    path('submissions/<int:submission_id>/assignee', update_assignee),
+    path('contests/<int:cid>/subscribe', subscribe_contest),
+    path('contests/<int:cid>/unsubscribe', unsubscribe_contest),
+    path('contests/all/unsubscribe', unsubscribe_all),
+    path('contests', contests)
 ]

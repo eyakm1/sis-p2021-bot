@@ -42,7 +42,7 @@ def generate_message(submission: Submission) -> str:
 def send(bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) -> Optional[int]:
     try:
         notification_logger.debug("Sending message: %d to group", chat_id)
-        result = bot.send_message(chat_id, message, reply_markup=markup)
+        result = bot.send_message(chat_id, message, reply_markup=markup, parse_mode="html")
         return result.message_id
     except apihelper.ApiException as err:
         notification_logger.error("Message not sent: %s", str(err))

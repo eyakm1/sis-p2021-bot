@@ -1,6 +1,7 @@
 import os
 
 BOT_TOKEN = os.getenv('BOT_TOKEN', '')
+BOT_USERNAME = os.getenv('BOT_USERNAME', '')
 API_URL = os.getenv('API_BASE', '')
 POLL_INTERVAL_SECONDS = float(os.getenv('BOT_POLL_INTERVAL_SECONDS', '1'))
 LOG_FILE_UPDATE_INTERVAL_HOURS = 1

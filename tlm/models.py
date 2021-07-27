@@ -34,6 +34,7 @@ class Submission(models.Model):
 
     last_update_time = models.DateTimeField(null=True)
     sent_to_chat = models.BooleanField(default=False)
+    last_snooze_time = models.DateTimeField(null=True)
 
     def submission_dict(self) -> JsonObj:
         res = {'id': self.pk,

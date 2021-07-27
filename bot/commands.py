@@ -24,13 +24,12 @@ def subscribe_command(message: Message) -> None:
         send(bot_instance, chat_id, "Нельзя подписывать личный чат на контест")
         return
 
-    result_code, result_message = bot_instance.subscribe(cid, chat_id)
-    if result_code == 200:
+    success = bot_instance.subscribe(cid, chat_id)
+    if success:
         send(bot_instance, chat_id, "Контест успешно добавлен!")
-    elif result_code == 400:
-        send(bot_instance, chat_id, result_message)
     else:
-        send(bot_instance, chat_id, "Произошла неизвестная ошибка")
+        send(bot_instance, chat_id, "Произошла неизвестная ошибка. "
+                                    "Попробуйте ещё раз.")
 
 
 @bot_instance.message_handler(commands=["unsubscribe"])
@@ -42,22 +41,21 @@ def unsubscribe_command(message: Message) -> None:
         return
 
     chat_id = message.chat.id
-    result_code, result_message = bot_instance.unsubscribe(cid, chat_id)
-    if result_code == 200:
+    success = bot_instance.unsubscribe(cid, chat_id)
+    if success:
         send(bot_instance, chat_id, "Вы успешно отписались от контеста!")
-    elif result_code == 400:
-        send(bot_instance, chat_id, result_message)
     else:
-        send(bot_instance, chat_id, "Произошла неизвестная ошибка")
+        send(bot_instance, chat_id, "Произошла неизвестная ошибка. "
+                                    "Попробуйте ещё раз.")
+
 
 
 @bot_instance.message_handler(commands=["unsubscribe_all"])
 def unsubscribe_all_command(message: Message) -> None:
     chat_id = message.chat.id
-    result_code, result_message = bot_instance.unsubscribe_all(chat_id)
-    if result_code == 200:
+    success = bot_instance.unsubscribe_all(chat_id)
+    if success:
         send(bot_instance, chat_id, "Вы успешно отписались от всех контестов!")
-    elif result_code == 400:
-        send(bot_instance, chat_id, result_message)
     else:
-        send(bot_instance, chat_id, "Произошла неизвестная ошибка")
+        send(bot_instance, chat_id, "Произошла неизвестная ошибка. "
+                                    "Попробуйте ещё раз.")

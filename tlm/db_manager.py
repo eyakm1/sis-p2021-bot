@@ -35,7 +35,9 @@ def post_submissions(request_body: JsonList) -> None:
 
 def get_waiting() -> JsonList:
     waiting_filter = Q(sent_to_chat=False, chat_rid=None,
-                       status__in=['assigned', 'unassigned']) & ~Q(target_chat_id=None)
+                       status__in=['assigned', 'unassigned']) & ~Q(target_chat_id=None) & \
+                     (Q(last_snooze_time=None) |
+                      Q(last_snooze_time__lt=timezone.now() - config.snooze_interval))
     waiting = Submission.objects.filter(waiting_filter)
 
     submissions_list = [submission.submission_dict() for submission in waiting]
@@ -48,6 +50,9 @@ def get_to_delete() -> JsonList:
             Q(status='closed') |
             Q(last_update_time__lt=timezone.now() - config.resend_interval,
               status__in=['assigned', 'unassigned']) |
+            Q(last_snooze_time__gt=timezone.now() - config.snooze_interval,
+              status__in=['assigned', 'unassigned']) |
+            ~Q(target_chat_id=F('chat_id')) |
             ~Q(rid=F('chat_rid'))
     )
 
@@ -101,6 +106,9 @@ def update_status(submission: Submission, status: str) -> None:
 def update_assignee(submission: Submission, assignee: int) -> None:
     submission.target_chat_id = assignee
 
+@submission_op
+def snooze(submission: Submission) -> None:
+    submission.last_snooze_time = timezone.now()
 
 def subscribe(cid: int, chat_id: int) -> None:
     subscription, _ = Subscription.objects.get_or_create(cid=cid)

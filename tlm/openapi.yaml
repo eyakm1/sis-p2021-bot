@@ -199,6 +199,20 @@ paths:
           description: "OK"
         '404':
           description: "Submission with given ID not found"
+  /submissions/{submission_id}/snooze:
+    post:
+      summary: "Snooze submission for a period of time"
+      parameters:
+        - in: path
+          name: submission_id
+          schema:
+            $ref: "#/components/schemas/DatabaseId"
+          required: true
+      responses:
+        '200':
+          description: "OK"
+        '404':
+          description: "Submission with given ID not found"
   /contests/{cid}/subscribe:
     put:
       summary: "Subscribe chat to contest"

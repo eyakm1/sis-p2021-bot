@@ -25,9 +25,11 @@ def generate_group_markup(callback_data: int) -> InlineKeyboardMarkup:
 
 def generate_individual_markup(callback_data: int) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
-    markup.row_width = 2
+    markup.row_width = 3
     markup.add(InlineKeyboardButton("\U000021A9 Вернуть",
                                     callback_data=f"unassigned {callback_data}"))
+    markup.add(InlineKeyboardButton("\U000023F0 Отложить",
+                                    callback_data=f"snoozed {callback_data}"))
     markup.add(InlineKeyboardButton("\U0000274C Закрыть", callback_data=f"closed {callback_data}"))
     return markup
 

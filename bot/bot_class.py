@@ -133,7 +133,7 @@ class TelegramBot(Bot):
                                                       f"from all contests. Error: %s")
         return done, data
 
-    async def process_group_submission(self, submission: Submission, chat_id: int) \
+    async def process_submission(self, submission: Submission, chat_id: int) \
             -> Optional[int]:
         self._logger.debug("Submission %d should "
                            "be sent to channel %d",

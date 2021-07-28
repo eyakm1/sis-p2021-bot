@@ -20,7 +20,7 @@ def prepare_for_hashtag(s: str, prefix: str = '') -> str:
 
 def generate_markup(callback_data: int) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("\U00002705 Сейчас проверю", callback_data=f"assigned {callback_data}"))
+    markup.add(InlineKeyboardButton("\U00002705 Сейчас проверю", callback_data=f"{callback_data}"))
     return markup
 
 
@@ -39,6 +39,19 @@ async def send(bot: aiogram.Bot, chat_id: int, message: str, markup: InlineKeybo
         return result.message_id
     except aiogram.exceptions.TelegramAPIError as err:
         notification_logger.error("Message not sent: %s", str(err))
+        return None
+    except asyncio.TimeoutError:
+        return None
+
+
+async def edit(bot: aiogram.Bot, chat_id: int, message_id: int, text: str, markup: InlineKeyboardMarkup = None) \
+        -> Optional[int]:
+    try:
+        notification_logger.debug("Editing message %d in chat %d", message_id, chat_id)
+        result = await bot.edit_message_text(text, chat_id, message_id, reply_markup=markup)
+        return result.message_id
+    except aiogram.exceptions.TelegramAPIError as err:
+        notification_logger.error("Message not edited: %s", str(err))
         return None
     except asyncio.TimeoutError:
         return None

@@ -89,10 +89,12 @@ def update_assignee(request: HttpRequest, submission_id: int) -> HttpResponse:
     db_manager.update_assignee(submission_id, body)
     return HttpResponse(status=200)
 
+
 @require_POST
 def snooze(request: HttpRequest, submission_id: int) -> HttpResponse:
     db_manager.snooze(submission_id)
     return HttpResponse(status=200)
+
 
 @require_http_methods(['PUT'])
 def subscribe_contest(request: HttpRequest, cid: int) -> HttpResponse:

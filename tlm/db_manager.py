@@ -106,14 +106,20 @@ def update_status(submission: Submission, status: str) -> None:
 def update_assignee(submission: Submission, assignee: int) -> None:
     submission.target_chat_id = assignee
 
+
 @submission_op
 def snooze(submission: Submission) -> None:
     submission.last_snooze_time = timezone.now()
 
+
 def subscribe(cid: int, chat_id: int) -> None:
     subscription, _ = Subscription.objects.get_or_create(cid=cid)
+
+    if subscription.chat_id == chat_id:
+        raise BadRequest('You have already subscribed to this contest')
     if subscription.chat_id:
         raise BadRequest('There is a chat subscribed to this contest')
+
     subscription.chat_id = chat_id
     subscription.save()
 
@@ -122,10 +128,13 @@ def unsubscribe(cid: int, chat_id: int) -> None:
     subscription = get_object_or_404(Subscription, cid=cid)
 
     if subscription.chat_id != chat_id:
-        raise BadRequest('Another chat is subscribed to this contest')
+        raise BadRequest('You are not subscribed to this contest')
 
     subscription.chat_id = None
     subscription.save()
+
+    contest_submissions = Submission.objects.filter(cid=cid, status='unassigned')
+    contest_submissions.update(target_chat_id=None)
 
 
 def unsubscribe_all(chat_id: int) -> None:

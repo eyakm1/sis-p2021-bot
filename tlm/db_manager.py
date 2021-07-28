@@ -27,8 +27,11 @@ def post_submissions(request_body: JsonList) -> None:
         submission_subscription = Subscription.objects.get(cid=submission.cid)
         if submission.status == 'unassigned':
             submission.target_chat_id = submission_subscription.chat_id
-        submission.rid = submission_data['rid']
-        submission.judge_link = submission_data['link']
+
+        # Check if submission from scraper is newer than one in database
+        if submission_data['rid'] > submission.rid:
+            submission.rid = submission_data['rid']
+            submission.judge_link = submission_data['link']
 
         submission.save()
 

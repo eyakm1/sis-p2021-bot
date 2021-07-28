@@ -1,4 +1,6 @@
+import functools
 import json
+from typing import Callable
 from django.core.exceptions import BadRequest
 from django.views.decorators.http import (require_GET,
                                           require_POST,
@@ -8,15 +10,27 @@ from tlm import db_manager
 from tlm.models import submission_fields, Json
 
 
+def handle_bad_request_message(fn: Callable[..., HttpResponse]) -> Callable[..., HttpResponse]:
+    @functools.wraps(fn)
+    def ret(request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        try:
+            response = fn(request, *args, **kwargs)
+        except BadRequest as err:
+            return HttpResponse(status=400, content_type='text/plain', content=str(err))
+        return response
+    return ret
+
+
 def parse_request_body(request: HttpRequest) -> Json:
     try:
         body = json.loads(request.read())
     except json.JSONDecodeError as err:
-        raise BadRequest() from err
+        raise BadRequest('Error parsing request body') from err
     return body
 
 
 @require_POST
+@handle_bad_request_message
 def add_submissions(request: HttpRequest) -> HttpResponse:
     body = parse_request_body(request)
 
@@ -36,6 +50,7 @@ def add_submissions(request: HttpRequest) -> HttpResponse:
 
 
 @require_http_methods(['PUT'])
+@handle_bad_request_message
 def confirm_send(request: HttpRequest, submission_id: int) -> HttpResponse:
     body = parse_request_body(request)
 
@@ -53,22 +68,26 @@ def confirm_send(request: HttpRequest, submission_id: int) -> HttpResponse:
 
 
 @require_http_methods(['PUT'])
+@handle_bad_request_message
 def confirm_delete(_, submission_id: int) -> HttpResponse:
     db_manager.confirm_delete(submission_id)
     return HttpResponse(status=200)
 
 
 @require_GET
+@handle_bad_request_message
 def waiting(_) -> HttpResponse:
     return JsonResponse(db_manager.get_waiting(), status=200, safe=False)
 
 
 @require_GET
+@handle_bad_request_message
 def delete(_) -> HttpResponse:
     return JsonResponse(db_manager.get_to_delete(), status=200, safe=False)
 
 
 @require_http_methods(['PUT'])
+@handle_bad_request_message
 def update_status(request: HttpRequest, submission_id: int) -> HttpResponse:
     body = parse_request_body(request)
 
@@ -80,6 +99,7 @@ def update_status(request: HttpRequest, submission_id: int) -> HttpResponse:
 
 
 @require_http_methods(['PUT'])
+@handle_bad_request_message
 def update_assignee(request: HttpRequest, submission_id: int) -> HttpResponse:
     body = parse_request_body(request)
 
@@ -97,6 +117,7 @@ def snooze(request: HttpRequest, submission_id: int) -> HttpResponse:
 
 
 @require_http_methods(['PUT'])
+@handle_bad_request_message
 def subscribe_contest(request: HttpRequest, cid: int) -> HttpResponse:
     body = parse_request_body(request)
 
@@ -108,6 +129,7 @@ def subscribe_contest(request: HttpRequest, cid: int) -> HttpResponse:
 
 
 @require_http_methods(['PUT'])
+@handle_bad_request_message
 def unsubscribe_contest(request: HttpRequest, cid: int) -> HttpResponse:
     body = parse_request_body(request)
 
@@ -119,6 +141,7 @@ def unsubscribe_contest(request: HttpRequest, cid: int) -> HttpResponse:
 
 
 @require_POST
+@handle_bad_request_message
 def unsubscribe_all(request: HttpRequest) -> HttpResponse:
     body = parse_request_body(request)
 
@@ -130,5 +153,6 @@ def unsubscribe_all(request: HttpRequest) -> HttpResponse:
 
 
 @require_GET
+@handle_bad_request_message
 def contests(_) -> HttpResponse:
     return JsonResponse(db_manager.get_contests(), status=200, safe=False)

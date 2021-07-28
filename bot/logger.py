@@ -1,9 +1,8 @@
 import logging
+import logging.handlers
 import os
-
-import telebot
-
 from bot.config import LOG_FILE_UPDATE_INTERVAL_HOURS, LOGS_BACKUP_FILE_COUNT
+
 
 LOGS_ROOT = "logs/bot"
 
@@ -26,7 +25,3 @@ def personalize_logger(logger: logging.Logger, name: str) -> logging.Logger:
     logger_file_handler.setFormatter(logging_formatter)
     logger.addHandler(logger_file_handler)
     return logger
-
-
-telebot_logger = telebot.logger
-telebot_logger = personalize_logger(telebot_logger, "telebot")

@@ -1,8 +1,9 @@
+import asyncio
 import re
 from typing import Optional
 
-from telebot import apihelper
-from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
+import aiogram
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from bot.logger import get_logger
 from bot.submission import Submission
@@ -41,40 +42,45 @@ def generate_message(submission: Submission) -> str:
            f"{submission.link}"
 
 
-def send(bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) -> Optional[int]:
+async def send(bot: aiogram.Bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) \
+        -> Optional[int]:
     try:
         notification_logger.debug("Sending message: %d to group", chat_id)
-        result = bot.send_message(chat_id, message, reply_markup=markup, parse_mode="html")
+        result = await bot.send_message(chat_id, message, reply_markup=markup)
         return result.message_id
-    except apihelper.ApiException as err:
+    except aiogram.exceptions.TelegramAPIError as err:
         notification_logger.error("Message not sent: %s", str(err))
+        return None
+    except asyncio.TimeoutError:
         return None
 
 
-def send_to_group(bot, submission: Submission, chat_id: int) -> Optional[int]:
+async def send_to_group(bot: aiogram.Bot, submission: Submission, chat_id: int) -> Optional[int]:
     markup = generate_group_markup(submission.id)
     message = generate_message(submission)
-    return send(bot, chat_id, message, markup)
+    return await send(bot, chat_id, message, markup)
 
 
-def send_assigned(bot, submission: Submission, chat_id: int) -> Optional[int]:
+async def send_assigned(bot: aiogram.Bot, submission: Submission, chat_id: int) -> Optional[int]:
     markup = generate_individual_markup(submission.id)
     message = generate_message(submission)
-    return send(bot, chat_id, message, markup)
+    return await send(bot, chat_id, message, markup)
 
 
-def send_assigned_by_submission_id(bot, message: str, chat_id: int, submission_id: int) \
-        -> Optional[int]:
+async def send_assigned_by_submission_id(bot: aiogram.Bot, message: str,
+                                         chat_id: int, submission_id: int) -> Optional[int]:
     markup = generate_individual_markup(submission_id)
-    return send(bot, chat_id, message, markup)
+    return await send(bot, chat_id, message, markup)
 
 
-def delete_message(bot, chat_id: int, message_id: int) -> bool:
+async def delete_message(bot: aiogram.Bot, chat_id: int, message_id: int) -> bool:
     try:
         notification_logger.debug("Deleting message with id %d from chat %d",
                                   message_id, chat_id)
-        bot.delete_message(chat_id, message_id)
-    except apihelper.ApiException as err:
+        await bot.delete_message(chat_id, message_id)
+    except aiogram.exceptions.TelegramAPIError as err:
         notification_logger.error("Message not deleted: %s", str(err))
+        return False
+    except asyncio.TimeoutError:
         return False
     return True

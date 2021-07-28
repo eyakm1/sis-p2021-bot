@@ -5,7 +5,7 @@ import os
 EJUDGE_PROXY_BASE_URL = os.getenv('EJUDGE_PROXY_BASE_URL',
                                   default='https://ejudge.p.lksh.ru/ej/')
 PROXY_AUTH_TOKEN = os.getenv('PROXY_AUTH_TOKEN', default='')
-API_BASE_URL = os.getenv('API_BASE_URL', default='https://127.0.0.1:8000/')
+API_BASE_URL = os.getenv('API_BASE_URL', default='http://127.0.0.1:8000/')
 CERTIFICATE_PATH = os.getenv('SCRAPER_CERTIFICATE_PATH', default='')
 CERTIFICATE_KEY_PATH = os.getenv('SCRAPER_CERTIFICATE_KEY_PATH', default='')
 SCRAPE_INTERVAL_SECONDS = float(os.getenv('SCRAPE_INTERVAL_SECONDS', '300'))

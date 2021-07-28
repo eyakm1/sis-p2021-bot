@@ -38,10 +38,7 @@ class TelegramBot(Bot):
             self._logger.info("Processing new submission %d...",
                               submission.id)
             chat_id = to_send["chat_id"]
-            if to_send["status"] == "assigned":
-                message_id = await self.process_private_submission(submission, chat_id)
-            else:
-                message_id = await self.process_group_submission(submission, chat_id)
+            message_id = await self.process_submission(submission, chat_id)
 
             if message_id:
                 await self.confirm_send(submission.id, submission.rid, chat_id, message_id)
@@ -75,28 +72,6 @@ class TelegramBot(Bot):
                 success = False
         return success
 
-    async def change_assignee(self, submission_id: int, assignee: int) -> bool:
-        success, _ = await self \
-            .api_request("put",
-                         f"{config.API_URL}/submissions/{submission_id}/assignee",
-                         data=assignee,
-                         success_msg=f"Updated submission {submission_id} "
-                                     f"assignee {assignee}",
-                         error_msg=f"Updating submission {submission_id} assignee "
-                                   f"{assignee} failed. Error: %s")
-        return success
-
-    async def change_status(self, submission_id: id, status: str) -> bool:
-        success, _ = await self \
-            .api_request("put",
-                         f"{config.API_URL}/submissions/{submission_id}/status",
-                         data=status,
-                         success_msg=f"Status of submission {submission_id} "
-                                     f"changed to {status}",
-                         error_msg=f"Updating submission {submission_id} status to "
-                                   f"{status} failed. Error: %s")
-        return success
-
     async def confirm_send(self, submission_id: int, rid: int, chat_id: int, message_id: int) \
             -> bool:
         data = {
@@ -126,16 +101,6 @@ class TelegramBot(Bot):
                          success_msg=f"Submission {submission_id} successfully deleted",
                          error_msg=f"Confirming deleting submission {submission_id} failed! "
                                    f"Error: %s")
-        return success
-
-    async def snooze(self, submission_id: int) -> bool:
-        success, _ = await self.api_request(
-            "post",
-            f"{config.API_URL}/submissions/{submission_id}/snooze",
-            success_msg=f"Submission {submission_id} snoozed",
-            error_msg=f"Snoozing submission {submission_id} failed! "
-                      f"Error: %s"
-        )
         return success
 
     async def subscribe(self, cid: int, chat_id: int) -> Tuple[bool, str]:
@@ -171,17 +136,9 @@ class TelegramBot(Bot):
     async def process_group_submission(self, submission: Submission, chat_id: int) \
             -> Optional[int]:
         self._logger.debug("Submission %d should "
-                           "be sent to group %d",
+                           "be sent to channel %d",
                            submission.id, chat_id)
-        message_id = await messaging.send_to_group(self, submission, chat_id)
-        return message_id
-
-    async def process_private_submission(self, submission: Submission, chat_id: int) \
-            -> Optional[int]:
-        self._logger.debug("Submission %d should be "
-                           "sent to assignee %d", submission.id,
-                           chat_id)
-        message_id = await messaging.send_assigned(self, submission, chat_id)
+        message_id = await messaging.send_to_channel(self, submission, chat_id)
         return message_id
 
     # pylint: disable=too-many-arguments

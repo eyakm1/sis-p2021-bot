@@ -18,20 +18,9 @@ def prepare_for_hashtag(s: str, prefix: str = '') -> str:
     return re.sub(r'_+', '_', replaced)  # merge consequent underscores
 
 
-def generate_group_markup(callback_data: int) -> InlineKeyboardMarkup:
+def generate_markup(callback_data: int) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("\U00002705 Взять", callback_data=f"assigned {callback_data}"))
-    return markup
-
-
-def generate_individual_markup(callback_data: int) -> InlineKeyboardMarkup:
-    markup = InlineKeyboardMarkup()
-    markup.row_width = 3
-    markup.add(InlineKeyboardButton("\U000021A9 Вернуть",
-                                    callback_data=f"unassigned {callback_data}"))
-    markup.add(InlineKeyboardButton("\U000023F0 Отложить",
-                                    callback_data=f"snoozed {callback_data}"))
-    markup.add(InlineKeyboardButton("\U0000274C Закрыть", callback_data=f"closed {callback_data}"))
+    markup.add(InlineKeyboardButton("\U00002705 Сейчас проверю", callback_data=f"assigned {callback_data}"))
     return markup
 
 
@@ -55,21 +44,9 @@ async def send(bot: aiogram.Bot, chat_id: int, message: str, markup: InlineKeybo
         return None
 
 
-async def send_to_group(bot: aiogram.Bot, submission: Submission, chat_id: int) -> Optional[int]:
-    markup = generate_group_markup(submission.id)
+async def send_to_channel(bot: aiogram.Bot, submission: Submission, chat_id: int) -> Optional[int]:
+    markup = generate_markup(submission.id)
     message = generate_message(submission)
-    return await send(bot, chat_id, message, markup)
-
-
-async def send_assigned(bot: aiogram.Bot, submission: Submission, chat_id: int) -> Optional[int]:
-    markup = generate_individual_markup(submission.id)
-    message = generate_message(submission)
-    return await send(bot, chat_id, message, markup)
-
-
-async def send_assigned_by_submission_id(bot: aiogram.Bot, message: str,
-                                         chat_id: int, submission_id: int) -> Optional[int]:
-    markup = generate_individual_markup(submission_id)
     return await send(bot, chat_id, message, markup)
 
 

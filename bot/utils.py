@@ -1,5 +1,5 @@
 import ssl
-import config
+from bot import config
 
 
 def get_ssl_context():

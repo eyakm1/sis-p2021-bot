@@ -7,7 +7,7 @@ from bot.bot_class import bot_instance
 @dp.callback_query_handler()
 async def button_callback(call: CallbackQuery):
     submission_id = int(call.data)
-    assigned_text = f"\n\nПроверяет @"
+    assigned_text = "\n\nПроверяет @"
     assigned_by_me_text = assigned_text + call.from_user.username
     if assigned_by_me_text in call.message.text:
         text = call.message.text.replace(assigned_by_me_text, "")

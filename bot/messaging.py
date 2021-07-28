@@ -44,7 +44,8 @@ async def send(bot: aiogram.Bot, chat_id: int, message: str, markup: InlineKeybo
         return None
 
 
-async def edit(bot: aiogram.Bot, chat_id: int, message_id: int, text: str, markup: InlineKeyboardMarkup = None) \
+async def edit(bot: aiogram.Bot, chat_id: int, message_id: int,
+               text: str, markup: InlineKeyboardMarkup = None) \
         -> Optional[int]:
     try:
         notification_logger.debug("Editing message %d in chat %d", message_id, chat_id)

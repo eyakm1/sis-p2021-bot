@@ -1,56 +1,48 @@
+import asyncio
+import logging
 import sys
-import threading
-from time import sleep
-
-import orm_setup as _
+from aiogram import executor
 # pylint: disable=unused-import
 import bot.callback
 # pylint: disable=unused-import
 import bot.commands
 from bot import config
-from bot.bot_class import bot_instance
+from bot.bot_class import bot_instance, dp
+
 # heartbeat_counter is not a constant
 # pylint: disable=invalid-name
 heartbeat_counter = 0
-mutex = threading.Lock()
+
+logging.basicConfig(level=logging.INFO)
 
 
-def bot_polling():
-    bot_instance.infinity_polling()
-
-
-def process_updates():
+async def process_updates():
     while True:
-        bot_instance.process_waiting()
-        bot_instance.delete_messages()
+        await bot_instance.process_waiting()
+        await bot_instance.delete_messages()
 
-        with mutex:
-            # heartbeat_counter is not a constant
-            # pylint: disable=invalid-name
-            # pylint: disable=global-statement
-            global heartbeat_counter
-            heartbeat_counter += 1
+        # heartbeat_counter is not a constant
+        # pylint: disable=invalid-name
+        # pylint: disable=global-statement
+        global heartbeat_counter
+        heartbeat_counter += 1
 
-        sleep(config.POLL_INTERVAL_SECONDS)
+        await asyncio.sleep(config.POLL_INTERVAL_SECONDS)
 
 
-def heartbeat_check():
+async def heartbeat_check():
     last_heartbeat = heartbeat_counter
     while True:
-        sleep(config.HEARTBEAT_INTERVAL_SECONDS)
+        await asyncio.sleep(config.HEARTBEAT_INTERVAL_SECONDS)
+        if heartbeat_counter == last_heartbeat:
+            logging.error("Bot shows no signs of life")
+            sys.exit(1)
+        last_heartbeat = heartbeat_counter
 
-        with mutex:
-            if heartbeat_counter == last_heartbeat:
-                sys.exit(1)
-            last_heartbeat = heartbeat_counter
 
+if __name__ == '__main__':
+    event_loop = asyncio.get_event_loop()
+    event_loop.create_task(process_updates())
+    event_loop.create_task(heartbeat_check())
 
-t1 = threading.Thread(target=bot_polling)
-t2 = threading.Thread(target=process_updates)
-t3 = threading.Thread(target=heartbeat_check)
-t1.start()
-t2.start()
-t3.start()
-t1.join()
-t2.join()
-t3.join()
+    executor.start_polling(dp, loop=event_loop)

@@ -28,6 +28,8 @@ COLUMNS = [
 
 COLUMNS_EJ_NAME_MAPPING = {col.ej_name: col for col in COLUMNS}
 
+PR_VERDICT_NAME = "Pending review"
+
 
 class ContestParser:
     def __init__(self, contest_id: int, last_rid: int = -1):
@@ -77,4 +79,16 @@ class ContestParser:
         return all_pr_submissions
 
     def track_submissions_verdict_modification(self, rid_list: List[int]) -> List[int]:
-        pass
+        all_tracking_submissions = []
+        for rid_batch in utils.batcher(rid_list, config.EJUDGE_FILTER_BATCH_SIZE):
+            ej_filter_query = '||'.join((EJUDGE_SUBMISSION_ID_FILTER.format(rid)
+                                         for rid in rid_batch))
+            all_tracking_submissions_url = \
+                utils.build_newjudge_url(self.contest_id, ej_filter_query)
+            ej_response = self._session.get(all_tracking_submissions_url)
+            if ej_response.status_code != 200:
+                return []
+            all_tracking_submissions.extend(self.parse_submissions_table(ej_response.content))
+        submissions_with_no_pr = [sub['rid'] for sub in all_tracking_submissions
+                                  if sub['verdict'] != PR_VERDICT_NAME]
+        return submissions_with_no_pr

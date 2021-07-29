@@ -118,6 +118,29 @@ paths:
                 type: array
                 items:
                   type: "integer"
+  /contests/{cid}/submissions:
+    get:
+      summary: "Get all unclosed submissions"
+      parameters:
+        - in: path
+          name: cid
+          schema:
+            type: "integer"
+          required: true
+      responses:
+        '200':
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    submission_id:
+                      type: "integer"
+                    rid:
+                      type: "integer"
   /submissions/{submission_id}/confirm/send:
     put:
       summary: "Confirm that the message in Telegram with given submission was sent"

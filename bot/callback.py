@@ -20,7 +20,7 @@ async def button_callback(call: CallbackQuery):
     else:
         # assign
         text = call.message.text + assigned_by_me_text
-        button_text = "\U0000274C Уже не хочу проверять"
+        button_text = "\U0000274C Уже не хочу проверять :("
     markup = generate_markup(button_text)
     await edit(bot_instance, call.message.chat.id,
                call.message.message_id, text, markup=markup)

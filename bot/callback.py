@@ -24,3 +24,4 @@ async def button_callback(call: CallbackQuery):
     markup = generate_markup(button_text)
     await edit(bot_instance, call.message.chat.id,
                call.message.message_id, text, markup=markup)
+    await call.answer()

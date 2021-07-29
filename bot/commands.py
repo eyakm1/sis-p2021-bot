@@ -6,7 +6,10 @@ from bot.messaging import send, delete_message, generate_service_message
 
 def get_cid_from_argument(message: Message) -> Optional[int]:
     try:
-        return int(message.text.split()[1])
+        number = int(message.text.split()[1])
+        if number >= 0:
+            return number
+        return None
     except (ValueError, IndexError):
         return None
 

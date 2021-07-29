@@ -1,4 +1,4 @@
-from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.types import CallbackQuery
 from bot.messaging import generate_markup, edit
 from bot.bot_class import dp
 from bot.bot_class import bot_instance

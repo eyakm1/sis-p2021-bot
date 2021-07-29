@@ -9,12 +9,12 @@ from bot.logger import get_logger
 from bot.submission import Submission
 
 notification_logger = get_logger("notifications")
-SERVICE_MESSAGE_TEMPLATES = {"subscribe": {0: "{user} подписал(-а) канал на контест {cid}",
-                                 1: "Канал был отписан от контеста {cid}"},
-                             "unsubscribe": {0: "{user} отписал(-а) канал от контеста {cid}",
-                                 1: "Канал был отписан от контеста {cid}"},
-                             "unsbuscribe_all": {0: "{user} отписал(-а) канал от всех контестов",
-                                 1: "Канал был отписан от всех контестов"}}
+SERVICE_MESSAGE_TEMPLATES = {"subscribe": {"user": "{user} подписал(-а) канал на контест {cid}",
+                                           "global": "Канал был подписан на контест {cid}"},
+                             "unsubscribe": {"user": "{user} отписал(-а) канал от контеста {cid}",
+                                             "global": "Канал был отписан от контеста {cid}"},
+                             "unsbuscribe_all": {"user": "{user} отписал(-а) канал от всех контестов",
+                                                 "global": "Канал был отписан от всех контестов"}}
 
 
 def prepare_for_hashtag(s: str, prefix: str = '') -> str:
@@ -39,11 +39,10 @@ def generate_message(submission: Submission) -> str:
 
 def generate_service_message(message: Message, msg_type: str, cid: int = None):
     if message.author_signature:
-        return SERVICE_MESSAGE_TEMPLATES[msg_type][0].format(
+        return SERVICE_MESSAGE_TEMPLATES[msg_type]["user"].format(
             user=message.author_signature, cid=cid)
     else:
-        return SERVICE_MESSAGE_TEMPLATES[msg_type][1].format(cid=cid)
-
+        return SERVICE_MESSAGE_TEMPLATES[msg_type]["global"].format(cid=cid)
 
 
 async def send(bot: aiogram.Bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) \

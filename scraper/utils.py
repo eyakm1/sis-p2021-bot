@@ -1,5 +1,6 @@
-import urllib.parse
 import pathlib
+import urllib.parse
+from typing import Collection, Any, Generator
 
 from scraper import config
 
@@ -40,8 +41,19 @@ def build_view_run_url(contest_id: int, run_id: int) -> str:
     return parse_url.geturl()
 
 
-def build_api_url(path: str) -> str:
+def build_api_url(*path: str) -> str:
     api_submissions_url_parse = urllib.parse.urlparse(config.API_BASE_URL)
-    api_submissions_path = str(pathlib.PurePosixPath(api_submissions_url_parse.path, path))
+    api_submissions_path = str(pathlib.PurePosixPath(api_submissions_url_parse.path, *path))
     api_submissions_url_parse = api_submissions_url_parse._replace(path=api_submissions_path)
     return api_submissions_url_parse.geturl()
+
+
+def batcher(seq: Collection[Any], batch_size: int) -> Generator[Collection[Any], None, None]:
+    """
+    Simple sequence batcher
+    :param seq: Sequence
+    :param batch_size: Batch size
+    :return: Generator of batches
+    """
+    for pos in range(0, len(seq), batch_size):
+        yield seq[pos:pos + batch_size]

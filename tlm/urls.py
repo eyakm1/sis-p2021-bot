@@ -28,7 +28,8 @@ from tlm.requests_handler import (
     subscribe_contest,
     unsubscribe_contest,
     unsubscribe_all,
-    contests
+    contests,
+    submissions
 )
 
 urlpatterns = [
@@ -43,5 +44,6 @@ urlpatterns = [
     path('contests/<int:cid>/subscribe', subscribe_contest),
     path('contests/<int:cid>/unsubscribe', unsubscribe_contest),
     path('contests/all/unsubscribe', unsubscribe_all),
-    path('contests', contests)
+    path('contests', contests),
+    path('contests/<int:cid>/submissions', submissions)
 ]

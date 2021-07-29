@@ -156,3 +156,8 @@ def unsubscribe_all(request: HttpRequest) -> HttpResponse:
 @handle_bad_request_message
 def contests(_) -> HttpResponse:
     return JsonResponse(db_manager.get_contests(), status=200, safe=False)
+
+
+@require_GET
+def submissions(_, cid: int) -> HttpResponse:
+    return JsonResponse(db_manager.get_submissions(cid), status=200, safe=False)

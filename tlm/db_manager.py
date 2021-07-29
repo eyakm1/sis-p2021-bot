@@ -149,3 +149,14 @@ def get_contests() -> List[int]:
     contests_list = [subscription.cid
                      for subscription in Subscription.objects.filter(~Q(chat_id=None))]
     return contests_list
+
+
+def get_submissions(cid: int) -> JsonList:
+    unclosed_filter = Q(cid=cid) & ~Q(status='closed')
+    unclosed_submissions = Submission.objects.filter(unclosed_filter)
+
+    submissions_list = [{'submission_id': submission.pk,
+                         'rid': submission.rid}
+                        for submission in unclosed_submissions]
+
+    return submissions_list

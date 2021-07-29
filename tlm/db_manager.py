@@ -4,10 +4,9 @@ from django.utils import timezone
 from django.db.models import F, Q
 from django.db import transaction
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import BadRequest
 from tlm.models import Submission, Subscription
 from tlm.models import JsonObj, JsonList
-from tlm import config
+from tlm import config, exceptions
 
 
 @transaction.atomic
@@ -125,9 +124,9 @@ def subscribe(cid: int, chat_id: int) -> None:
     subscription, _ = Subscription.objects.get_or_create(cid=cid)
 
     if subscription.chat_id == chat_id:
-        raise BadRequest('You have already subscribed to this contest')
+        raise exceptions.Http409()
     if subscription.chat_id:
-        raise BadRequest('There is a chat subscribed to this contest')
+        raise exceptions.Http403()
 
     subscription.chat_id = chat_id
     subscription.save()
@@ -138,7 +137,7 @@ def unsubscribe(cid: int, chat_id: int) -> None:
     subscription = get_object_or_404(Subscription, cid=cid)
 
     if subscription.chat_id != chat_id:
-        raise BadRequest('You are not subscribed to this contest')
+        raise exceptions.Http403()
 
     subscription.chat_id = None
     subscription.save()

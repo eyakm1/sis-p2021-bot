@@ -36,8 +36,17 @@ async def subscribe_command(message: Message) -> None:
         return
 
     success, error_message = await bot_instance.subscribe(cid, chat_id)
-    text = generate_service_message(message, 0, cid)
-    print(text)
+    text = generate_service_message(message, "subscribe", cid)
+    await delete_message(bot_instance, message.chat.id, message.message_id)
+    await send_feedback(success, error_message, text, chat_id)
+
+
+@dp.message_handler(commands=["unsubscribe_all"])
+@dp.channel_post_handler(regexp="/unsubscribe_all")
+async def unsubscribe_all_command(message: Message) -> None:
+    chat_id = message.chat.id
+    success, error_message = await bot_instance.unsubscribe_all(chat_id)
+    text = generate_service_message(message, "unsubscribe_all")
     await delete_message(bot_instance, message.chat.id, message.message_id)
     await send_feedback(success, error_message, text, chat_id)
 
@@ -53,16 +62,6 @@ async def unsubscribe_command(message: Message) -> None:
 
     chat_id = message.chat.id
     success, error_message = await bot_instance.unsubscribe(cid, chat_id)
-    text = generate_service_message(message, 1, cid)
-    await delete_message(bot_instance, message.chat.id, message.message_id)
-    await send_feedback(success, error_message, text, chat_id)
-
-
-@dp.message_handler(commands=["unsubscribe_all"])
-@dp.channel_post_handler(regexp="/unsubscribe_all")
-async def unsubscribe_all_command(message: Message) -> None:
-    chat_id = message.chat.id
-    success, error_message = await bot_instance.unsubscribe_all(chat_id)
-    text = generate_service_message(message, 2)
+    text = generate_service_message(message, "unsubscribe", cid)
     await delete_message(bot_instance, message.chat.id, message.message_id)
     await send_feedback(success, error_message, text, chat_id)

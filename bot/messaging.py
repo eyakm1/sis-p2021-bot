@@ -9,11 +9,11 @@ from bot.logger import get_logger
 from bot.submission import Submission
 
 notification_logger = get_logger("notifications")
-SERVICE_MESSAGE_TEMPLATES = {0: {0: "{} подписал(-а) канал на контест {}",
-                                 1: "Канал был отписан от контеста {}"},
-                             1: {0: "{} отписал(-а) канал от контеста {}",
-                                 1: "Канал был отписан от контеста {}"},
-                             2: {0: "{} отписал(-а) канал от всех контестов",
+SERVICE_MESSAGE_TEMPLATES = {"subscribe": {0: "{user} подписал(-а) канал на контест {cid}",
+                                 1: "Канал был отписан от контеста {cid}"},
+                             "unsubscribe": {0: "{user} отписал(-а) канал от контеста {cid}",
+                                 1: "Канал был отписан от контеста {cid}"},
+                             "unsbuscribe_all": {0: "{user} отписал(-а) канал от всех контестов",
                                  1: "Канал был отписан от всех контестов"}}
 
 
@@ -37,10 +37,13 @@ def generate_message(submission: Submission) -> str:
            f"{submission.link}"
 
 
-def generate_service_message(message: Message, msg_type: int, cid: int = None):
+def generate_service_message(message: Message, msg_type: str, cid: int = None):
     if message.author_signature:
         return SERVICE_MESSAGE_TEMPLATES[msg_type][0].format(
-            "na", "898")
+            user=message.author_signature, cid=cid)
+    else:
+        return SERVICE_MESSAGE_TEMPLATES[msg_type][1].format(cid=cid)
+
 
 
 async def send(bot: aiogram.Bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) \

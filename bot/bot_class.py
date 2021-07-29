@@ -23,10 +23,10 @@ class TelegramBot(Bot):
         self._logger = get_logger("bot_class")
 
     async def process_waiting(self) -> bool:
-        success, waiting_list = \
+        code, waiting_list = \
             await self.api_request("get", f"{config.API_URL}/waiting",
                                    error_msg="Cannot get API /waiting. Error: %s")
-        if not success:
+        if code != 200:
             return False
         for to_send in waiting_list:
             submission = Submission(
@@ -56,16 +56,16 @@ class TelegramBot(Bot):
         return True
 
     async def delete_messages(self) -> bool:
-        success, to_delete_list = await self.api_request("get",
-                                                         f"{config.API_URL}/to_delete",
-                                                         error_msg="Cannot get API "
-                                                                   "/to_delete. Error: %s")
-        if not success:
+        code, to_delete_list = await self.api_request("get",
+                                                      f"{config.API_URL}/to_delete",
+                                                      error_msg="Cannot get API "
+                                                                "/to_delete. Error: %s")
+        if code != 200:
             return False
         for to_delete_msg in to_delete_list:
-            success = await messaging.delete_message(self, to_delete_msg["tg_msg"]["chat_id"],
-                                                     to_delete_msg["tg_msg"]["message_id"])
-            if success:
+            code = await messaging.delete_message(self, to_delete_msg["tg_msg"]["chat_id"],
+                                                  to_delete_msg["tg_msg"]["message_id"])
+            if code == 200:
                 await self.confirm_delete(to_delete_msg["id"])
                 self._logger.debug("Message %d was "
                                    "deleted from chat %d",
@@ -76,11 +76,11 @@ class TelegramBot(Bot):
                                      "was NOT deleted from chat %d",
                                      to_delete_msg["tg_msg"]["message_id"],
                                      to_delete_msg["tg_msg"]["chat_id"])
-                success = False
-        return success
+                code = 500
+        return code == 200
 
     async def change_assignee(self, submission_id: int, assignee: int) -> bool:
-        success, _ = await self \
+        code, _ = await self \
             .api_request("put",
                          f"{config.API_URL}/submissions/{submission_id}/assignee",
                          data=assignee,
@@ -88,10 +88,10 @@ class TelegramBot(Bot):
                                      f"assignee {assignee}",
                          error_msg=f"Updating submission {submission_id} assignee "
                                    f"{assignee} failed. Error: %s")
-        return success
+        return code == 200
 
     async def change_status(self, submission_id: id, status: str) -> bool:
-        success, _ = await self \
+        code, _ = await self \
             .api_request("put",
                          f"{config.API_URL}/submissions/{submission_id}/status",
                          data=status,
@@ -99,7 +99,7 @@ class TelegramBot(Bot):
                                      f"changed to {status}",
                          error_msg=f"Updating submission {submission_id} status to "
                                    f"{status} failed. Error: %s")
-        return success
+        return code == 200
 
     async def confirm_send(self, submission_id: int, rid: int, chat_id: int, message_id: int) \
             -> bool:
@@ -110,7 +110,7 @@ class TelegramBot(Bot):
                 "message_id": message_id
             }
         }
-        success, _ = await self.api_request(
+        code, _ = await self.api_request(
             "put",
             f"{config.API_URL}/submissions/{submission_id}/confirm/send",
             data=data,
@@ -121,56 +121,56 @@ class TelegramBot(Bot):
                       f"{submission_id} (rid: {rid}) "
                       f"to {chat_id} failed! Error: %s"
         )
-        return success
+        return code == 200
 
     async def confirm_delete(self, submission_id: int) -> bool:
-        success, _ = await self \
+        code, _ = await self \
             .api_request("put",
                          f"{config.API_URL}/submissions/{submission_id}/confirm/delete",
                          success_msg=f"Submission {submission_id} successfully deleted",
                          error_msg=f"Confirming deleting submission {submission_id} failed! "
                                    f"Error: %s")
-        return success
+        return code == 200
 
     async def snooze(self, submission_id: int) -> bool:
-        success, _ = await self.api_request(
+        code, _ = await self.api_request(
             "post",
             f"{config.API_URL}/submissions/{submission_id}/snooze",
             success_msg=f"Submission {submission_id} snoozed",
             error_msg=f"Snoozing submission {submission_id} failed! "
                       f"Error: %s"
         )
-        return success
+        return code == 200
 
-    async def subscribe(self, cid: int, chat_id: int) -> Tuple[bool, str]:
-        done, data = await self.api_request("put",
+    async def subscribe(self, cid: int, chat_id: int) -> Tuple[int, str]:
+        code, data = await self.api_request("put",
                                             f"{config.API_URL}/contests/{cid}/subscribe",
                                             data=chat_id,
                                             success_msg=f"Successfully "
                                                         f"subscribed {chat_id} on {cid}",
                                             error_msg=f"Chat {chat_id} subscription "
                                                       f"on contest {cid} failed. Error: %s")
-        return done, data
+        return code, data
 
-    async def unsubscribe(self, cid: int, chat_id: int) -> Tuple[bool, str]:
-        done, data = await self.api_request("put",
+    async def unsubscribe(self, cid: int, chat_id: int) -> Tuple[int, str]:
+        code, data = await self.api_request("put",
                                             f"{config.API_URL}/contests/{cid}/unsubscribe",
                                             data=chat_id,
                                             success_msg=f"Chat {chat_id} unsubscribed from "
                                                         f"contest {cid}",
                                             error_msg=f"Could not unsubscribe {chat_id}"
                                                       f"from contest {cid}. Error: %s")
-        return done, data
+        return code, data
 
-    async def unsubscribe_all(self, chat_id: int) -> Tuple[bool, str]:
-        done, data = await self.api_request("post",
+    async def unsubscribe_all(self, chat_id: int) -> Tuple[int, str]:
+        code, data = await self.api_request("post",
                                             f"{config.API_URL}/contests/all/unsubscribe",
                                             data=chat_id,
                                             success_msg=f"Chat {chat_id} unsubscribed from "
                                                         f"all contests",
                                             error_msg=f"Could not unsubscribe {chat_id}"
                                                       f"from all contests. Error: %s")
-        return done, data
+        return code, data
 
     async def process_group_submission(self, submission: Submission, chat_id: int) \
             -> Optional[int]:
@@ -191,7 +191,7 @@ class TelegramBot(Bot):
     # pylint: disable=too-many-arguments
     async def api_request(self, request_method: str, url: str, data: Union[dict, str, int] = None,
                           success_msg: str = None,
-                          error_msg: str = "") -> Tuple[bool, Any]:
+                          error_msg: str = "") -> Tuple[int, Any]:
         """
             TLM API call
             :param request_method: http request method
@@ -200,7 +200,7 @@ class TelegramBot(Bot):
             :param success_msg: logger message for successful call
             :param error_msg: logger message for unsuccessful call
             :returns:
-                success - success of api call
+                code - result code
                 data - requested json in case of successful call,
                 error message string or None otherwise
             """
@@ -210,21 +210,21 @@ class TelegramBot(Bot):
                     if success_msg:
                         self._logger.debug(success_msg)
                     if result.content_length:
-                        return True, await result.json()
-                    return True, None
+                        return 200, await result.json()
+                    return 200, None
                 self._logger.warning(error_msg, "status code:" + str(result.status))
-                return False, await result.text()
+                return result.status, await result.text()
         except aiohttp.ClientConnectorError as error:
             if error_msg:
                 self._logger.warning(error_msg, str(error))
-                return False, None
+                return 500, None
         except json.decoder.JSONDecodeError as error:
             self._logger.error("Error while parsing API response "
                                "to json. %s", str(error))
-            return False, None
+            return 500, None
         except asyncio.TimeoutError as error:
             logging.exception(error)
-            return False, None
+            return 500, None
 
 
 session_timeout = aiohttp.ClientTimeout(total=config.TIMEOUT_INTERVAL_SECONDS)

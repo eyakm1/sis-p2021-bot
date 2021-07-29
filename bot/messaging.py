@@ -49,7 +49,8 @@ async def edit(bot: aiogram.Bot, chat_id: int, message_id: int,
         -> Optional[int]:
     try:
         notification_logger.debug("Editing message %d in chat %d", message_id, chat_id)
-        result = await bot.edit_message_text(text, chat_id, message_id, reply_markup=markup)
+        await bot.edit_message_text(text, chat_id, message_id)
+        result = await bot.edit_message_reply_markup(chat_id, message_id, reply_markup=markup)
         return result.message_id
     except aiogram.exceptions.TelegramAPIError as err:
         notification_logger.error("Message not edited: %s", str(err))

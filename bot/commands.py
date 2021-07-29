@@ -50,7 +50,6 @@ async def unsubscribe_command(message: Message) -> None:
     success, error_message = await bot_instance.unsubscribe(cid, chat_id)
     await send_feedback(success, error_message, "Вы успешно отписались от контеста!", chat_id)
 
-
 @dp.message_handler(commands=["unsubscribe_all"])
 async def unsubscribe_all_command(message: Message) -> None:
     chat_id = message.chat.id

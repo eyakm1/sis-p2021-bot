@@ -2,6 +2,7 @@ import functools
 from typing import Callable, List
 from django.utils import timezone
 from django.db.models import F, Q
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import BadRequest
 from tlm.models import Submission, Subscription
@@ -9,6 +10,7 @@ from tlm.models import JsonObj, JsonList
 from tlm import config
 
 
+@transaction.atomic
 def post_submissions(request_body: JsonList) -> None:
     for submission_data in request_body:
         submission, _ = Submission.objects.get_or_create(cid=submission_data['cid'],
@@ -36,6 +38,7 @@ def post_submissions(request_body: JsonList) -> None:
         submission.save()
 
 
+@transaction.atomic
 def get_waiting() -> JsonList:
     waiting_filter = Q(sent_to_chat=False, chat_rid=None,
                        status__in=['assigned', 'unassigned']) & ~Q(target_chat_id=None) & \
@@ -48,6 +51,7 @@ def get_waiting() -> JsonList:
     return submissions_list
 
 
+@transaction.atomic
 def get_to_delete() -> JsonList:
     delete_filter = Q(sent_to_chat=True) & (
             Q(status='closed') |
@@ -69,9 +73,10 @@ def get_to_delete() -> JsonList:
 def submission_op(fn: Callable[..., None]) -> Callable[..., None]:
     @functools.wraps(fn)
     def ret(submission_id: int, *args, **kwargs) -> None:
-        submission = get_object_or_404(Submission, pk=submission_id)
-        fn(submission, *args, **kwargs)
-        submission.save()
+        with transaction.atomic():
+            submission = get_object_or_404(Submission, pk=submission_id)
+            fn(submission, *args, **kwargs)
+            submission.save()
 
     return ret
 
@@ -115,6 +120,7 @@ def snooze(submission: Submission) -> None:
     submission.last_snooze_time = timezone.now()
 
 
+@transaction.atomic
 def subscribe(cid: int, chat_id: int) -> None:
     subscription, _ = Subscription.objects.get_or_create(cid=cid)
 
@@ -127,6 +133,7 @@ def subscribe(cid: int, chat_id: int) -> None:
     subscription.save()
 
 
+@transaction.atomic
 def unsubscribe(cid: int, chat_id: int) -> None:
     subscription = get_object_or_404(Subscription, cid=cid)
 
@@ -140,17 +147,20 @@ def unsubscribe(cid: int, chat_id: int) -> None:
     contest_submissions.update(target_chat_id=None)
 
 
+@transaction.atomic
 def unsubscribe_all(chat_id: int) -> None:
     all_subscriptions = Subscription.objects.filter(chat_id=chat_id)
     all_subscriptions.update(chat_id=None)
 
 
+@transaction.atomic
 def get_contests() -> List[int]:
     contests_list = [subscription.cid
                      for subscription in Subscription.objects.filter(~Q(chat_id=None))]
     return contests_list
 
 
+@transaction.atomic
 def get_submissions(cid: int) -> JsonList:
     unclosed_filter = Q(cid=cid) & ~Q(status='closed')
     unclosed_submissions = Submission.objects.filter(unclosed_filter)

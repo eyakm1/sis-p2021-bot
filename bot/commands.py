@@ -1,7 +1,7 @@
 from typing import Optional
 from aiogram.types import Message
 from bot.bot_class import bot_instance, dp
-from bot.messaging import send
+from bot.messaging import send, delete_message, generate_service_message
 
 
 def get_cid_from_argument(message: Message) -> Optional[int]:
@@ -22,6 +22,7 @@ async def send_feedback(success: bool, error_message: str, ok_message: str, chat
 
 
 @dp.message_handler(commands=["subscribe"])
+@dp.channel_post_handler(regexp="/subscribe")
 async def subscribe_command(message: Message) -> None:
     cid = get_cid_from_argument(message)
     if not cid:
@@ -35,10 +36,14 @@ async def subscribe_command(message: Message) -> None:
         return
 
     success, error_message = await bot_instance.subscribe(cid, chat_id)
-    await send_feedback(success, error_message, "Контест успешно добавлен!", chat_id)
+    text = generate_service_message(message, 0, cid)
+    print(text)
+    await delete_message(bot_instance, message.chat.id, message.message_id)
+    await send_feedback(success, error_message, text, chat_id)
 
 
 @dp.message_handler(commands=["unsubscribe"])
+@dp.channel_post_handler(regexp="/unsubscribe")
 async def unsubscribe_command(message: Message) -> None:
     cid = get_cid_from_argument(message)
     if not cid:
@@ -48,11 +53,16 @@ async def unsubscribe_command(message: Message) -> None:
 
     chat_id = message.chat.id
     success, error_message = await bot_instance.unsubscribe(cid, chat_id)
-    await send_feedback(success, error_message, "Вы успешно отписались от контеста!", chat_id)
+    text = generate_service_message(message, 1, cid)
+    await delete_message(bot_instance, message.chat.id, message.message_id)
+    await send_feedback(success, error_message, text, chat_id)
 
 
 @dp.message_handler(commands=["unsubscribe_all"])
+@dp.channel_post_handler(regexp="/unsubscribe_all")
 async def unsubscribe_all_command(message: Message) -> None:
     chat_id = message.chat.id
     success, error_message = await bot_instance.unsubscribe_all(chat_id)
-    await send_feedback(success, error_message, "Вы успешно отписались от всех контестов!", chat_id)
+    text = generate_service_message(message, 2)
+    await delete_message(bot_instance, message.chat.id, message.message_id)
+    await send_feedback(success, error_message, text, chat_id)

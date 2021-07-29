@@ -3,12 +3,18 @@ import re
 from typing import Optional
 
 import aiogram
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message
 
 from bot.logger import get_logger
 from bot.submission import Submission
 
 notification_logger = get_logger("notifications")
+SERVICE_MESSAGE_TEMPLATES = {0: {0: "{} подписал(-а) канал на контест {}",
+                                 1: "Канал был отписан от контеста {}"},
+                             1: {0: "{} отписал(-а) канал от контеста {}",
+                                 1: "Канал был отписан от контеста {}"},
+                             2: {0: "{} отписал(-а) канал от всех контестов",
+                                 1: "Канал был отписан от всех контестов"}}
 
 
 def prepare_for_hashtag(s: str, prefix: str = '') -> str:
@@ -31,16 +37,23 @@ def generate_message(submission: Submission) -> str:
            f"{submission.link}"
 
 
+def generate_service_message(message: Message, msg_type: int, cid: int = None):
+    if message.author_signature:
+        return SERVICE_MESSAGE_TEMPLATES[msg_type][0].format(
+            "na", "898")
+
+
 async def send(bot: aiogram.Bot, chat_id: int, message: str, markup: InlineKeyboardMarkup = None) \
         -> Optional[int]:
     try:
         notification_logger.debug("Sending message: %d to group", chat_id)
         result = await bot.send_message(chat_id, message, reply_markup=markup)
         return result.message_id
-    except aiogram.exceptions.TelegramAPIError as err:
+    except (aiogram.exceptions.TelegramAPIError, asyncio.TimeoutError) as err:
         notification_logger.error("Message not sent: %s", str(err))
         return None
-    except asyncio.TimeoutError:
+    except Exception as err:
+        notification_logger.error("Message not sent: %s", str(err))
         return None
 
 

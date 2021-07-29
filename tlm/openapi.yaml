@@ -254,6 +254,10 @@ paths:
       responses:
         '200':
           description: "OK"
+        '403':
+          description: "Another chat is subscribed for this contest"
+        '409':
+          description: "This chat is already subscribed for this contest"
   /contests/{cid}/unsubscribe:
     put:
       summary: "Unsubscribe chat from contest"

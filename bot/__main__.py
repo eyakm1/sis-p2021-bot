@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import sys
-from aiogram import executor
+from aiogram import executor, exceptions
 # pylint: disable=unused-import
 import bot.callback
 # pylint: disable=unused-import
@@ -15,11 +15,18 @@ heartbeat_counter = 0
 
 logging.basicConfig(level=logging.INFO)
 
+FLOOD_LIMIT_TIMEOUT_SECONDS = 60
+
 
 async def process_updates():
     while True:
-        await bot_instance.process_waiting()
-        await bot_instance.delete_messages()
+        try:
+            await bot_instance.process_waiting()
+            await bot_instance.delete_messages()
+        except exceptions.RetryAfter:
+            logging.warning("We got throttled")
+            # default flood timeout
+            await asyncio.sleep(FLOOD_LIMIT_TIMEOUT_SECONDS)
 
         # heartbeat_counter is not a constant
         # pylint: disable=invalid-name

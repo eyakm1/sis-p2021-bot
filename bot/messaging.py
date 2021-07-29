@@ -18,9 +18,9 @@ def prepare_for_hashtag(s: str, prefix: str = '') -> str:
     return re.sub(r'_+', '_', replaced)  # merge consequent underscores
 
 
-def generate_markup(callback_data: int) -> InlineKeyboardMarkup:
+def generate_markup(button_text: str) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton("\U00002705 Сейчас проверю", callback_data=f"{callback_data}"))
+    markup.add(InlineKeyboardButton(button_text))
     return markup
 
 
@@ -59,7 +59,7 @@ async def edit(bot: aiogram.Bot, chat_id: int, message_id: int,
 
 
 async def send_to_channel(bot: aiogram.Bot, submission: Submission, chat_id: int) -> Optional[int]:
-    markup = generate_markup(submission.id)
+    markup = generate_markup("\U00002705 Сейчас проверю")
     message = generate_message(submission)
     return await send(bot, chat_id, message, markup)
 

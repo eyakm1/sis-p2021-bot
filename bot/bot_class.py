@@ -7,9 +7,11 @@ import aiohttp
 from aiogram import Bot, Dispatcher
 
 from bot import config, messaging
+from bot import utils
 from bot.logger import get_logger
 from bot.submission import Submission
-import bot.utils as utils
+
+SLEEP_INTERVAL_BETWEEN_MESSAGES = .05
 
 
 class TelegramBot(Bot):
@@ -49,6 +51,8 @@ class TelegramBot(Bot):
                 self._logger.warning("Sending submission %d failed",
                                      submission.id)
                 return False
+            # 20 messages per second
+            await asyncio.sleep(SLEEP_INTERVAL_BETWEEN_MESSAGES)
         return True
 
     async def delete_messages(self) -> bool:

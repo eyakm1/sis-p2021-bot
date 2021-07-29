@@ -20,7 +20,7 @@ def prepare_for_hashtag(s: str, prefix: str = '') -> str:
 
 def generate_markup(button_text: str) -> InlineKeyboardMarkup:
     markup = InlineKeyboardMarkup()
-    markup.add(InlineKeyboardButton(button_text, callback_data=""))
+    markup.add(InlineKeyboardButton(button_text, callback_data="-"))
     return markup
 
 

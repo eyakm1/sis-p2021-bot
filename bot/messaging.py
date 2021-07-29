@@ -13,7 +13,7 @@ SERVICE_MESSAGE_TEMPLATES = {"subscribe": {"user": "{user} подписал(-а)
                                            "global": "Канал был подписан на контест {cid}"},
                              "unsubscribe": {"user": "{user} отписал(-а) канал от контеста {cid}",
                                              "global": "Канал был отписан от контеста {cid}"},
-                             "unsbuscribe_all": {"user": "{user} отписал(-а) канал от всех контестов",
+                             "unsubscribe_all": {"user": "{user} отписал(-а) канал от всех контестов",
                                                  "global": "Канал был отписан от всех контестов"}}
 
 

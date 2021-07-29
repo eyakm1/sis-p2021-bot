@@ -55,7 +55,7 @@ async def unsubscribe_all_command(message: Message) -> None:
 
 
 @dp.message_handler(commands=["unsubscribe"])
-@dp.channel_post_handler(regexp="/unsubscribe")
+@dp.channel_post_handler(regexp="/unsubscribe ")
 async def unsubscribe_command(message: Message) -> None:
     cid = get_cid_from_argument(message)
     if not cid:

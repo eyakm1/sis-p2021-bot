@@ -1,7 +1,8 @@
 import asyncio
 import logging
 import sys
-from aiogram import executor
+from time import sleep
+from aiogram import executor, utils
 # pylint: disable=unused-import
 import bot.callback
 # pylint: disable=unused-import
@@ -44,5 +45,9 @@ if __name__ == '__main__':
     event_loop = asyncio.get_event_loop()
     event_loop.create_task(process_updates())
     event_loop.create_task(heartbeat_check())
-
-    executor.start_polling(dp, loop=event_loop)
+    while True:
+        try:
+            executor.start_polling(dp, loop=event_loop)
+        except utils.exceptions.NetworkError:
+            logging.warning("Network error")
+            sleep(config.NETWORK_ERROR_SLEEP)

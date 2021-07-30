@@ -134,10 +134,7 @@ def subscribe(cid: int, chat_id: int) -> None:
 
 @transaction.atomic
 def unsubscribe(cid: int, chat_id: int) -> None:
-    subscription = get_object_or_404(Subscription, cid=cid)
-
-    if subscription.chat_id != chat_id:
-        raise exceptions.Http403()
+    subscription = get_object_or_404(Subscription, cid=cid, chat_id=chat_id)
 
     subscription.chat_id = None
     subscription.save()
